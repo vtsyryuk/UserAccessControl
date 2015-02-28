@@ -20,9 +20,11 @@ public final class UserAccessChecker {
             if (p.getIdentity().equals(identity)) {
                 UserAccessLevel level = p.getAccessLevel();
                 if (level == UserAccessLevel.Write) {
-                    return level;
-                } else if (level == UserAccessLevel.Read) {
                     ual = level;
+                } else if (level == UserAccessLevel.Read && ual != UserAccessLevel.Write) {
+                    ual = level;
+                } else if (level == UserAccessLevel.None) {
+                    return UserAccessLevel.None;
                 }
             }
         }
