@@ -84,7 +84,7 @@ public final class UserAccessChecker {
                     } else if (lookupField.getType() == IdentityType.Wildcard) {
                         count++;
                     } else {
-                        return 0;
+                        return 0; //NOTE: field is not matching to any
                     }
                 }
                 return count;
