@@ -49,7 +49,7 @@ public class UserAccessCheckerTest {
         | value1 | value2 | value3 | Write |
         */
 
-        f1wf2vf3v = new ResourceIdentity.Builder(new WildcardField("field1", "*"))
+        f1wf2vf3v = new ResourceIdentity.Builder(new WildcardField("field1"))
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
@@ -58,7 +58,7 @@ public class UserAccessCheckerTest {
         ResourcePermission f1wf2vf3vW = new ResourcePermission(f1wf2vf3v, UserAccessLevel.Write);
 
         f1vf2wf3v = new ResourceIdentity.Builder(new ValueField("field1", "value1"))
-                .field(new WildcardField("field2", "*"))
+                .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
         ResourcePermission f1vf2wf3vR = new ResourcePermission(f1vf2wf3v, UserAccessLevel.Read);
@@ -66,31 +66,31 @@ public class UserAccessCheckerTest {
 
         f1vf2vf3w = new ResourceIdentity.Builder(new ValueField("field1", "value1"))
                 .field(new ValueField("field2", "value2"))
-                .field(new WildcardField("field3", "*"))
+                .field(new WildcardField("field3"))
                 .build();
         ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.Write);
 
-        f1wf2wf3w = new ResourceIdentity.Builder(new WildcardField("field1", "*"))
-                .field(new WildcardField("field2", "*"))
-                .field(new WildcardField("field3", "*"))
+        f1wf2wf3w = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new WildcardField("field2"))
+                .field(new WildcardField("field3"))
                 .build();
         ResourcePermission f1wf2wf3wR = new ResourcePermission(f1wf2wf3w, UserAccessLevel.Read);
 
-        f1wf2wf3v = new ResourceIdentity.Builder(new WildcardField("field1", "*"))
-                .field(new WildcardField("field2", "*"))
+        f1wf2wf3v = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
         ResourcePermission f1wf2wf3vR = new ResourcePermission(f1wf2wf3v, UserAccessLevel.Read);
 
         f1vf2wf3w = new ResourceIdentity.Builder(new ValueField("field1", "value1"))
-                .field(new WildcardField("field2", "*"))
-                .field(new WildcardField("field3", "*"))
+                .field(new WildcardField("field2"))
+                .field(new WildcardField("field3"))
                 .build();
         ResourcePermission f1vf2wf3wN = new ResourcePermission(f1vf2wf3w, UserAccessLevel.None);
 
-        f1wf2vf3w = new ResourceIdentity.Builder(new WildcardField("field1", "*"))
+        f1wf2vf3w = new ResourceIdentity.Builder(new WildcardField("field1"))
                 .field(new ValueField("field2", "value2"))
-                .field(new WildcardField("field3", "*"))
+                .field(new WildcardField("field3"))
                 .build();
         ResourcePermission f1wf2vf3wR = new ResourcePermission(f1wf2vf3w, UserAccessLevel.Read);
 
@@ -144,7 +144,7 @@ public class UserAccessCheckerTest {
     @Test
     public void testAccessLevelNoneForUnknownUser() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
-        ResourceIdentity ri = new ResourceIdentity.Builder(new WildcardField("field1", "*"))
+        ResourceIdentity ri = new ResourceIdentity.Builder(new WildcardField("field1"))
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
@@ -164,7 +164,7 @@ public class UserAccessCheckerTest {
     }
 
     @Test
-    public void testMatchingIdentitiesHaveConfiguredAccessLevel() {
+    public void testExactMatchingIdentities() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
 
         /*
@@ -199,7 +199,7 @@ public class UserAccessCheckerTest {
     }
 
     @Test
-    public void testClosestMatchingWildcardIdentityTakesPlace() {
+    public void testWildcardRules() {
         /*
          ----------------------------------
         | field1 | field2 | field3 | level |
@@ -215,15 +215,27 @@ public class UserAccessCheckerTest {
          ----------------------------------
         |   *    |   *    |   *    | Read  |
         |  xyz   |  xyz   |  xyz   | Read  |
+        |   *    |   *    |  xyz   | Read  |
+        |   *    |  xyz   |   *    | Read  |
+        |  xyz   |   *    |   *    | Read  |
+        |  xyz   |   *    |  xyz   | Read  |
+        |   *    |  xyz   |  xyz   | Read  |
+        |  xyz   |  xyz   |   *    | Read  |
          ----------------------------------
         |   *    |   *    | value3 | Read  |
         |  xyz   |  xyz   | value3 | Read  |
+        |  xyz   |   *    | value3 | Read  |
+        |   *    |  xyz   | value3 | Read  |
          ----------------------------------
         | value1 |   *    |   *    | None  |
         | value1 |  xyz   |  xyz   | None  |
+        | value1 |  xyz   |   *    | None  |
+        | value1 |   *    |  xyz   | None  |
          ----------------------------------
         |   *    | value2 |   *    | Read  |
         |  xyz   | value2 |  xyz   | Read  |
+        |   *    | value2 |  xyz   | Read  |
+        |  xyz   | value2 |   *    | Read  |
          ----------------------------------
         | value1 | value2 | value3 | Write |
         */
@@ -281,14 +293,117 @@ public class UserAccessCheckerTest {
          ----------------------------------
         |   *    |   *    |   *    | Read  |
         |  xyz   |  xyz   |  xyz   | Read  |
+        |   *    |   *    |  xyz   | Read  |
+        |   *    |  xyz   |   *    | Read  |
+        |  xyz   |   *    |   *    | Read  |
+        |  xyz   |   *    |  xyz   | Read  |
+        |   *    |  xyz   |  xyz   | Read  |
+        |  xyz   |  xyz   |   *    | Read  |
+        */
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3w));
+
+        /*
          ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |  xyz   |  xyz   |  xyz   | Read  |
         */
         ResourceIdentity f1xf2xf3x = new ResourceIdentity.Builder(new ValueField("field1", "xyz"))
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3w));
         assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2xf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |   *    |   *    |  xyz   | Read  |
+        */
+        ResourceIdentity f1wf2wf3x = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new WildcardField("field2"))
+                .field(new ValueField("field3", "xyz"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |   *    |  xyz   |   *    | Read  |
+        */
+        ResourceIdentity f1wf2xf3w = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new ValueField("field2", "xyz"))
+                .field(new WildcardField("field3"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2xf3w));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |  xyz   |   *    |   *    | Read  |
+        */
+        ResourceIdentity f1xf2wf3w = new ResourceIdentity.Builder(new ValueField("field1", "xyz"))
+                .field(new WildcardField("field2"))
+                .field(new WildcardField("field3"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2wf3w));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |  xyz   |   *    |  xyz   | Read  |
+        */
+        ResourceIdentity f1xf2wf3x = new ResourceIdentity.Builder(new ValueField("field1", "xyz"))
+                .field(new WildcardField("field2"))
+                .field(new ValueField("field3", "xyz"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2wf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |   *    |  xyz   |  xyz   | Read  |
+        */
+        ResourceIdentity f1wf2xf3x = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new ValueField("field2", "xyz"))
+                .field(new ValueField("field3", "xyz"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2xf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    |   *    | Read  |
+        |  xyz   |  xyz   |   *    | Read  |
+        */
+        ResourceIdentity f1xf2xf3w = new ResourceIdentity.Builder(new ValueField("field1", "xyz"))
+                .field(new ValueField("field2", "xyz"))
+                .field(new WildcardField("field3"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2xf3w));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    | value3 | Read  |
+        |  xyz   |  xyz   | value3 | Read  |
+        |  xyz   |   *    | value3 | Read  |
+        |   *    |  xyz   | value3 | Read  |
+         ----------------------------------
+        */
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3v));
 
         /*
          ----------------------------------
@@ -302,8 +417,47 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3v));
         assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2xf3v));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    | value3 | Read  |
+        |  xyz   |   *    | value3 | Read  |
+         ----------------------------------
+        */
+        ResourceIdentity f1xf2wf3v = new ResourceIdentity.Builder(new ValueField("field1", "xyz"))
+                .field(new WildcardField("field2"))
+                .field(new ValueField("field3", "value3"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2wf3v));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    |   *    | value3 | Read  |
+        |   *    |  xyz   | value3 | Read  |
+         ----------------------------------
+        */
+        ResourceIdentity f1wf2xf3v = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new ValueField("field2", "xyz"))
+                .field(new ValueField("field3", "value3"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2xf3v));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        | value1 |   *    |   *    | None  |
+        | value1 |  xyz   |  xyz   | None  |
+        | value1 |  xyz   |   *    | None  |
+        | value1 |   *    |  xyz   | None  |
+         ----------------------------------
+        */
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3w));
 
         /*
          ----------------------------------
@@ -317,8 +471,47 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3w));
         assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2xf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        | value1 |   *    |   *    | None  |
+        | value1 |  xyz   |   *    | None  |
+         ----------------------------------
+        */
+        ResourceIdentity f1vf2xf3w = new ResourceIdentity.Builder(new ValueField("field1", "value1"))
+                .field(new ValueField("field2", "xyz"))
+                .field(new WildcardField("field3"))
+                .build();
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2xf3w));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        | value1 |   *    |   *    | None  |
+        | value1 |   *    |  xyz   | None  |
+         ----------------------------------
+        */
+        ResourceIdentity f1vf2wf3x = new ResourceIdentity.Builder(new ValueField("field1", "value1"))
+                .field(new WildcardField("field2"))
+                .field(new ValueField("field3", "xyz"))
+                .build();
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    | value2 |   *    | Read  |
+        |  xyz   | value2 |  xyz   | Read  |
+        |   *    | value2 |  xyz   | Read  |
+        |  xyz   | value2 |   *    | Read  |
+         ----------------------------------
+        */
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2vf3w));
 
         /*
          ----------------------------------
@@ -332,7 +525,34 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2vf3w));
         assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2vf3x));
+
+            /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    | value2 |   *    | Read  |
+        |   *    | value2 |  xyz   | Read  |
+         ----------------------------------
+        */
+        ResourceIdentity f1wf2vf3x = new ResourceIdentity.Builder(new WildcardField("field1"))
+                .field(new ValueField("field2", "value2"))
+                .field(new ValueField("field3", "xyz"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2vf3x));
+
+        /*
+         ----------------------------------
+        | field1 | field2 | field3 | level |
+         ----------------------------------
+        |   *    | value2 |   *    | Read  |
+        |  xyz   | value2 |   *    | Read  |
+         ----------------------------------
+        */
+        ResourceIdentity f1xf2vf3w = new ResourceIdentity.Builder(new ValueField("field1", "xyz"))
+                .field(new ValueField("field2", "value2"))
+                .field(new WildcardField("field3"))
+                .build();
+        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2vf3w));
     }
 }
