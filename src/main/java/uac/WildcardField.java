@@ -2,8 +2,10 @@ package uac;
 
 public class WildcardField extends IdentityField {
 
-    public WildcardField(String name, String value) {
-        super(name, value);
+    private static final String wildcard = "*";
+
+    public WildcardField(String name) {
+        super(name, wildcard);
     }
 
     @Override
