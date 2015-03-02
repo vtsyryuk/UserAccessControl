@@ -40,9 +40,6 @@ public abstract class IdentityField {
 
     @Override
     public String toString() {
-        return "IdentityField{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                '}';
+        return "IdentityField{name='" + name + '\'' + ", value='" + value + '\'' + '}';
     }
 }

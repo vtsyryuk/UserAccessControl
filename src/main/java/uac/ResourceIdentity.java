@@ -1,18 +1,26 @@
 package uac;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class ResourceIdentity {
 
-    private final List<IdentityField> fields;
+    private final ImmutableMap<String, IdentityField> fieldMap;
 
     private ResourceIdentity(List<IdentityField> fields) {
-        this.fields = fields;
+        Map<String, IdentityField> fieldMap = new Hashtable<>(fields.size());
+        for (IdentityField f : fields) {
+            fieldMap.put(f.getName(), f);
+        }
+        this.fieldMap = ImmutableMap.<String, IdentityField>builder().putAll(fieldMap).build();
     }
 
-    public List<IdentityField> getFields() {
-        return fields;
+    public ImmutableMap<String, IdentityField> getFieldMap() {
+        return fieldMap;
     }
 
     @Override
@@ -21,31 +29,29 @@ public class ResourceIdentity {
         if (o == null || getClass() != o.getClass()) return false;
 
         ResourceIdentity that = (ResourceIdentity) o;
-        return fields.equals(that.fields);
+        return fieldMap.equals(that.fieldMap);
+
     }
 
     @Override
     public int hashCode() {
-        return fields.hashCode();
+        return fieldMap.hashCode();
     }
 
     @Override
     public String toString() {
-        return "ResourceIdentity{" + "fields=" + fields + '}';
+        return "ResourceIdentity{fieldMap=" + fieldMap + '}';
     }
 
     public static class Builder {
 
         private final List<IdentityField> fields = new LinkedList<>();
 
-        public Builder(IdentityField field) {
-            this.fields.add(field);
-        }
-
         public Builder field(IdentityField field) {
             this.fields.add(field);
             return this;
         }
+
         public ResourceIdentity build() {
             return new ResourceIdentity(fields);
         }

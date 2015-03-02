@@ -8,9 +8,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static uac.ResourceIdentity.Builder;
 
 public final class UserAccessChecker {
 
@@ -18,6 +19,25 @@ public final class UserAccessChecker {
 
     public UserAccessChecker(UserAccessControl uac) {
         this.uac = uac;
+    }
+
+    private static ResourceIdentity getCompleteIdentity(final ResourceIdentity input, final ResourceIdentity pattern) {
+        final Sets.SetView<String> fieldSetDiff = Sets.symmetricDifference(
+                input.getFieldMap().keySet(),
+                pattern.getFieldMap().keySet());
+
+        if (fieldSetDiff.isEmpty()) {
+            return input;
+        }
+
+        Builder riBuilder = new Builder();
+        for (String fieldName : fieldSetDiff) {
+            riBuilder = riBuilder.field(new WildcardField(fieldName));
+        }
+        for (Map.Entry<String, IdentityField> entry : input.getFieldMap().entrySet()) {
+            riBuilder = riBuilder.field(entry.getValue());
+        }
+        return riBuilder.build();
     }
 
     private static UserAccessLevel getResultedLevel(Set<ResourcePermission> permissionSet) {
@@ -42,31 +62,26 @@ public final class UserAccessChecker {
             return UserAccessLevel.None;
         }
 
-        final Function<IdentityField, String> getName = new Function<IdentityField, String>() {
-            @Override
-            public String apply(IdentityField input) {
-                return input.getName();
-            }
-        };
+        final ResourceIdentity patternIdentity = Iterables.get(permissionSet, 0).getIdentity();
+        final ResourceIdentity lookupIdentity = getCompleteIdentity(identity, patternIdentity);
 
-        List<IdentityField> uacFields = Iterables.get(permissionSet, 0).getIdentity().getFields();
-        final Set<String> uacFieldNames = Sets.newHashSet(Iterables.transform(uacFields, getName));
-        final Set<String> inputFieldNames = Sets.newHashSet(Iterables.transform(identity.getFields(), getName));
-
-        if (!Sets.symmetricDifference(inputFieldNames, uacFieldNames).isEmpty()) {
-            throw new IllegalArgumentException(identity + " - number of fields do not match permission repository configuration");
-        }
-
-        Map<ResourcePermission, Integer> matchFreq = Maps.asMap(permissionSet, new Function<ResourcePermission, Integer>() {
+        final Map<ResourcePermission, Integer> freqMap = Maps.asMap(permissionSet, new Function<ResourcePermission, Integer>() {
             @Override
             public Integer apply(ResourcePermission permission) {
+                final ImmutableMap<String, IdentityField> fieldMap = permission.getIdentity().getFieldMap();
+                return getFrequency(fieldMap);
+            }
+
+            private Integer getFrequency(ImmutableMap<String, IdentityField> fieldMap) {
                 int count = 0;
-                final ImmutableMap<String, IdentityField> fieldMap = Maps.uniqueIndex(permission.getIdentity().getFields(), getName);
-                for (final IdentityField f : identity.getFields()) {
-                    IdentityField soughtField = fieldMap.get(f.getName());
-                    if (soughtField.equals(f)) {
+                for (final IdentityField f : lookupIdentity.getFieldMap().values()) {
+                    final IdentityField lookupField = fieldMap.get(f.getName());
+                    if (lookupField == null) {
+                        continue; //NOTE: unknown fields are ignored
+                    }
+                    if (lookupField.equals(f)) {
                         count += 2;
-                    } else if (soughtField.getType() == IdentityType.Wildcard) {
+                    } else if (lookupField.getType() == IdentityType.Wildcard) {
                         count++;
                     }
                 }
@@ -74,8 +89,11 @@ public final class UserAccessChecker {
             }
         });
 
-        final int maxFreq = Collections.max(matchFreq.values());
-        Set<ResourcePermission> bestMatch = Maps.filterEntries(matchFreq, new Predicate<Map.Entry<ResourcePermission, Integer>>() {
+        final int maxFreq = Collections.max(freqMap.values());
+        if (maxFreq == 0) {
+            return UserAccessLevel.None;
+        }
+        final Set<ResourcePermission> bestMatch = Maps.filterEntries(freqMap, new Predicate<Map.Entry<ResourcePermission, Integer>>() {
             @Override
             public boolean apply(Map.Entry<ResourcePermission, Integer> input) {
                 return input.getValue() == maxFreq;
