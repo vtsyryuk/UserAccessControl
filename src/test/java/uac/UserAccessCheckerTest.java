@@ -173,6 +173,35 @@ public class UserAccessCheckerTest {
         assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2wf3v));
     }
 
+    @Test
+    public void testIncompleteIdentityCannotBeMatched() {
+        uacRepository.clear();
+        ResourcePermission f1vf2vf3vR = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
+        ResourcePermission f1vf2vf3vW = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Write);
+        ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.Write);
+
+        uacRepository.add(f1vf2vf3wW);
+        uacRepository.add(f1vf2vf3vR);
+        uacRepository.add(f1vf2vf3vW);
+
+        Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
+        ResourceIdentity f1wf2vf3w = new Builder()
+                .field(new ValueField("field2", "value2"))
+                .build();
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1wf2vf3w));
+
+        ResourceIdentity f1wf2xf3w = new Builder()
+                .field(new ValueField("field2", "xyz"))
+                .build();
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1wf2xf3w));
+
+        ResourceIdentity f1vf2wf3v = new Builder()
+                .field(new ValueField("field1", "value1"))
+                .field(new ValueField("field3", "value3"))
+                .field(new ValueField("field4", "value4"))
+                .build();
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3v));
+    }
 
     @Test
     public void testUnknownFieldsAreIgnored() {
