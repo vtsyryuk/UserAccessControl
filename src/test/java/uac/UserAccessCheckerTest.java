@@ -8,6 +8,7 @@ import uac.ResourceIdentity.Builder;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class UserAccessCheckerTest {
 
@@ -180,6 +181,8 @@ public class UserAccessCheckerTest {
         ResourcePermission f1vf2vf3vW = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Write);
         ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.Write);
 
+        assertEquals(f1vf2vf3vR, new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read));
+
         uacRepository.add(f1vf2vf3wW);
         uacRepository.add(f1vf2vf3vR);
         uacRepository.add(f1vf2vf3vW);
@@ -188,6 +191,7 @@ public class UserAccessCheckerTest {
         ResourceIdentity f1wf2vf3w = new Builder()
                 .field(new ValueField("field2", "value2"))
                 .build();
+        assertNotEquals(f1wf2vf3w, this.f1wf2vf3w);
         assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1wf2vf3w));
 
         ResourceIdentity f1wf2xf3w = new Builder()

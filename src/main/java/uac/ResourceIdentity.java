@@ -30,17 +30,11 @@ public class ResourceIdentity {
 
         ResourceIdentity that = (ResourceIdentity) o;
         return fieldMap.equals(that.fieldMap);
-
     }
 
     @Override
     public int hashCode() {
         return fieldMap.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "ResourceIdentity{fieldMap=" + fieldMap + '}';
     }
 
     public static class Builder {
