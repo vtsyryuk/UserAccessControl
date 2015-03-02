@@ -42,9 +42,15 @@ public class ResourceIdentity {
             this.fields.add(field);
             return this;
         }
-
         public ResourceIdentity build() {
             return new ResourceIdentity(fields);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ResourceIdentity{" +
+                "fields=" + fields +
+                '}';
     }
 }
