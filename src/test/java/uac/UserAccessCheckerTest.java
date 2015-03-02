@@ -141,6 +141,13 @@ public class UserAccessCheckerTest {
         assertEquals(UserAccessLevel.None, checker.getLevel("user1", ri));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testExceptionThrownForIncompleteIdentity() {
+        Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
+        ResourceIdentity ri = new ResourceIdentity.Builder(new ValueField("field1", "value")).build();
+        checker.getLevel("user1", ri);
+    }
+
     @Test
     public void testAccessLevelNoneForUnknownUser() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);

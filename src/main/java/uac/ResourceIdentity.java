@@ -22,12 +22,16 @@ public class ResourceIdentity {
 
         ResourceIdentity that = (ResourceIdentity) o;
         return fields.equals(that.fields);
-
     }
 
     @Override
     public int hashCode() {
         return fields.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "ResourceIdentity{" + "fields=" + fields + '}';
     }
 
     public static class Builder {
@@ -45,12 +49,5 @@ public class ResourceIdentity {
         public ResourceIdentity build() {
             return new ResourceIdentity(fields);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "ResourceIdentity{" +
-                "fields=" + fields +
-                '}';
     }
 }

@@ -7,7 +7,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class UserAccessChecker {
 
@@ -15,6 +18,21 @@ public final class UserAccessChecker {
 
     public UserAccessChecker(UserAccessControl uac) {
         this.uac = uac;
+    }
+
+    private static UserAccessLevel getResultedLevel(Set<ResourcePermission> permissionSet) {
+        UserAccessLevel ual = UserAccessLevel.None;
+        for (ResourcePermission p : permissionSet) {
+            UserAccessLevel level = p.getAccessLevel();
+            if (level == UserAccessLevel.Write) {
+                ual = level;
+            } else if (level == UserAccessLevel.Read && ual != UserAccessLevel.Write) {
+                ual = level;
+            } else if (level == UserAccessLevel.None) {
+                return UserAccessLevel.None;
+            }
+        }
+        return ual;
     }
 
     public UserAccessLevel getLevel(String userName, final ResourceIdentity identity) {
@@ -32,11 +50,11 @@ public final class UserAccessChecker {
         };
 
         List<IdentityField> uacFields = Iterables.get(permissionSet, 0).getIdentity().getFields();
-        final HashSet<String> uacFieldNames = Sets.newHashSet(Iterables.transform(uacFields, getName));
-        final HashSet<String> inputFieldNames = Sets.newHashSet(Iterables.transform(identity.getFields(), getName));
+        final Set<String> uacFieldNames = Sets.newHashSet(Iterables.transform(uacFields, getName));
+        final Set<String> inputFieldNames = Sets.newHashSet(Iterables.transform(identity.getFields(), getName));
 
-        if (!Sets.difference(inputFieldNames, uacFieldNames).isEmpty()) {
-            throw new IllegalArgumentException(identity + " columns do not match permission repository configuration");
+        if (!Sets.symmetricDifference(inputFieldNames, uacFieldNames).isEmpty()) {
+            throw new IllegalArgumentException(identity + " - number of fields do not match permission repository configuration");
         }
 
         Map<ResourcePermission, Integer> matchFreq = Maps.asMap(permissionSet, new Function<ResourcePermission, Integer>() {
@@ -65,20 +83,5 @@ public final class UserAccessChecker {
         }).keySet();
 
         return getResultedLevel(bestMatch);
-    }
-
-    private static UserAccessLevel getResultedLevel(Set<ResourcePermission> permissionSet) {
-        UserAccessLevel ual = UserAccessLevel.None;
-        for (ResourcePermission p : permissionSet) {
-            UserAccessLevel level = p.getAccessLevel();
-            if (level == UserAccessLevel.Write) {
-                ual = level;
-            } else if (level == UserAccessLevel.Read && ual != UserAccessLevel.Write) {
-                ual = level;
-            } else if (level == UserAccessLevel.None) {
-                return UserAccessLevel.None;
-            }
-        }
-        return ual;
     }
 }

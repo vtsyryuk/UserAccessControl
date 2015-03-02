@@ -17,7 +17,6 @@ public class ResourcePermission {
         ResourcePermission that = (ResourcePermission) o;
         return accessLevel == that.accessLevel &&
                 (identity != null ? identity.equals(that.identity) : that.identity == null);
-
     }
 
     @Override

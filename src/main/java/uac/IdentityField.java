@@ -25,10 +25,8 @@ public abstract class IdentityField {
 
         IdentityField that = (IdentityField) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
-
-        return true;
+        return (name != null ? name.equals(that.name) : that.name == null) &&
+                (value != null ? value.equals(that.value) : that.value == null);
     }
 
     @Override
