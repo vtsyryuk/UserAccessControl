@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-    <classpathentry kind="src" output="bin/main" path="src/main/java">
-        <attributes>
-            <attribute name="gradle_scope" value="main"/>
-            <attribute name="gradle_used_by_scope" value="main,test"/>
-        </attributes>
-    </classpathentry>
-    <classpathentry kind="src" output="bin/test" path="src/test/java">
-        <attributes>
-            <attribute name="gradle_scope" value="test"/>
-            <attribute name="gradle_used_by_scope" value="test"/>
-            <attribute name="test" value="true"/>
-        </attributes>
-    </classpathentry>
-    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-25/"/>
-    <classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
-    <classpathentry kind="output" path="bin/default"/>
+	<classpathentry kind="src" output="bin/test" path="src/test/java">
+		<attributes>
+			<attribute name="gradle_scope" value="test"/>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin/main" path="src/main/java">
+		<attributes>
+			<attribute name="gradle_scope" value="main"/>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-25/"/>
+	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/6.0.2/4178f527c0925fd5f5bc4995d226535f0a05abde/junit-jupiter-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/6.0.2/fb559da6cf7a1f9d251462a24fcb14856debea38/junit-jupiter-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/6.0.2/5e3a4f00d15162299a901bb3b1c1c328d580f046/junit-platform-launcher-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/6.0.2/1fe45dac052ad1139918482204196a29e13b212d/junit-platform-launcher-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/6.0.2/d2beca8e9e15c7f11898ce6f368450f95f2d3d94/junit-jupiter-engine-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/6.0.2/2a30aff0a9a0d97c0728db5b3102658083f4d74b/junit-jupiter-engine-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-params/6.0.2/960b882fd207c962066024b251699f2ca269dfac/junit-jupiter-params-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-params/6.0.2/35ed7e38169e88e750d295b91ae465d18233b829/junit-jupiter-params-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/6.0.2/dc0f97bba32fe8c18c53b7435f16c497650725ba/junit-jupiter-api-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/6.0.2/9c8e6bf28295f34c3699d664fa9f100fa9473468/junit-jupiter-api-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/6.0.2/d652eea045999c54c5edc4fbf04e4612f9bf1421/junit-platform-engine-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/6.0.2/23b7128fe496c50f577244d0d849761957845891/junit-platform-engine-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/6.0.2/8362b066c5ffd81ce59154f988e3a91f4a5578af/junit-platform-commons-6.0.2.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/6.0.2/27e4015c025cc02ea68d71b799a84a1508d4f60e/junit-platform-commons-6.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-core/5.23.0/a5cf3cf244300e4cd05f779827cf50d373a8460e/mockito-core-5.23.0.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.mockito/mockito-core/5.23.0/37d466cda6cf22f2675bcd0a041ee6a571ae923/mockito-core-5.23.0-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.17.7/3856bfab61beb23e099a0d6629f2ba8de4b98ace/byte-buddy-1.17.7.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy/1.17.7/f380f394d4455dc20375fab7d28b26aa727b5a1a/byte-buddy-1.17.7-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.7/fbf3d6d649ed37fc9e9c59480a05be0a26e3c2da/byte-buddy-agent-1.17.7.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.7/e3a6c5dbc289480b8602fab32e07ee3c3ff1151c/byte-buddy-agent-1.17.7-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/3.3/1049c09f1de4331e8193e579448d0916d75b7631/objenesis-3.3.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/3.3/5fef34eeee6816b0ba2170755a8a9db7744990c3/objenesis-3.3-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/152ea56b3a72f655d4fd677fc0ef2596c3dd5e6e/opentest4j-1.3.0.jar" sourcepath="/Users/vladt/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/afb8ff23cffb021c56f333953aebfe6e8818568e/opentest4j-1.3.0-sources.jar"/>
+	<classpathentry kind="output" path="bin/default"/>
 </classpath>

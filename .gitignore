@@ -51,6 +51,7 @@ bin/
 
 # IDEs
 .idea/
+.settings/org.eclipse.buildship.core.prefs
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json

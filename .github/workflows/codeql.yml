@@ -42,7 +42,7 @@ jobs:
           build-scan-terms-of-use-agree: 'yes'
 
       - name: Build
-        run: ./gradlew clean classes testClasses --scan
+        run: ./gradlew clean compileJava compileTestJava --no-build-cache --rerun-tasks --scan
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
