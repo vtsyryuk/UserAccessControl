@@ -1,14 +1,9 @@
 package uac;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static uac.ResourceIdentity.Builder;
@@ -22,9 +17,12 @@ public final class UserAccessChecker {
     }
 
     private static ResourceIdentity getCompleteIdentity(final ResourceIdentity input, final ResourceIdentity pattern) {
-        final Sets.SetView<String> fieldSetDiff = Sets.symmetricDifference(
-                input.getFieldMap().keySet(),
-                pattern.getFieldMap().keySet());
+        final Set<String> fieldSetDiff = new HashSet<>(input.getFieldMap().keySet());
+        for (String fieldName : pattern.getFieldMap().keySet()) {
+            if (!fieldSetDiff.add(fieldName)) {
+                fieldSetDiff.remove(fieldName);
+            }
+        }
 
         if (fieldSetDiff.isEmpty()) {
             return input;
@@ -58,50 +56,48 @@ public final class UserAccessChecker {
     public UserAccessLevel getLevel(String userName, final ResourceIdentity identity) {
 
         final Set<ResourcePermission> permissionSet = uac.getPermissionSet(userName);
-        if (permissionSet.isEmpty()) {
+        if (permissionSet == null || permissionSet.isEmpty()) {
             return UserAccessLevel.None;
         }
 
-        final ResourceIdentity patternIdentity = Iterables.get(permissionSet, 0).getIdentity();
+        final ResourceIdentity patternIdentity = permissionSet.iterator().next().getIdentity();
         final ResourceIdentity lookupIdentity = getCompleteIdentity(identity, patternIdentity);
 
-        final Map<ResourcePermission, Integer> freqMap = Maps.asMap(permissionSet, new Function<ResourcePermission, Integer>() {
-            @Override
-            public Integer apply(ResourcePermission permission) {
-                final ImmutableMap<String, IdentityField> fieldMap = permission.getIdentity().getFieldMap();
-                return getFrequency(fieldMap);
-            }
+        final Map<ResourcePermission, Integer> freqMap = new HashMap<>();
+        for (ResourcePermission permission : permissionSet) {
+            freqMap.put(permission, getFrequency(permission.getIdentity().getFieldMap(), lookupIdentity));
+        }
 
-            private Integer getFrequency(ImmutableMap<String, IdentityField> fieldMap) {
-                int count = 0;
-                for (final IdentityField f : lookupIdentity.getFieldMap().values()) {
-                    final IdentityField lookupField = fieldMap.get(f.getName());
-                    if (lookupField == null) {
-                        continue; //NOTE: unknown fields are ignored
-                    }
-                    if (lookupField.equals(f)) {
-                        count += 2;
-                    } else if (lookupField.getType() == IdentityType.Wildcard) {
-                        count++;
-                    } else {
-                        return 0; //NOTE: field is not matching to any
-                    }
-                }
-                return count;
-            }
-        });
-
-        final int maxFreq = Collections.max(freqMap.values());
+        final int maxFreq = freqMap.values().stream().mapToInt(Integer::intValue).max().orElse(0);
         if (maxFreq == 0) {
             return UserAccessLevel.None;
         }
-        final Set<ResourcePermission> bestMatch = Maps.filterEntries(freqMap, new Predicate<Map.Entry<ResourcePermission, Integer>>() {
-            @Override
-            public boolean apply(Map.Entry<ResourcePermission, Integer> input) {
-                return input.getValue() == maxFreq;
+
+        final Set<ResourcePermission> bestMatch = new HashSet<>();
+        for (Map.Entry<ResourcePermission, Integer> entry : freqMap.entrySet()) {
+            if (Objects.equals(entry.getValue(), maxFreq)) {
+                bestMatch.add(entry.getKey());
             }
-        }).keySet();
+        }
 
         return getResultedLevel(bestMatch);
+    }
+
+    private static int getFrequency(Map<String, IdentityField> fieldMap, ResourceIdentity lookupIdentity) {
+        int count = 0;
+        for (final IdentityField f : lookupIdentity.getFieldMap().values()) {
+            final IdentityField lookupField = fieldMap.get(f.getName());
+            if (lookupField == null) {
+                continue; // Unknown fields are ignored.
+            }
+            if (lookupField.equals(f)) {
+                count += 2;
+            } else if (lookupField.getType() == IdentityType.Wildcard) {
+                count++;
+            } else {
+                return 0;
+            }
+        }
+        return count;
     }
 }

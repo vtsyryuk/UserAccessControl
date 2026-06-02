@@ -1,14 +1,16 @@
 package uac;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import uac.ResourceIdentity.Builder;
 
 import java.util.HashSet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserAccessCheckerTest {
 
@@ -24,7 +26,7 @@ public class UserAccessCheckerTest {
     private ResourceIdentity f1wf2vf3w;
     private ResourceIdentity f1vf2vf3v;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         uac = Mockito.mock(UserAccessControl.class);
         checker = new UserAccessChecker(uac);
@@ -132,7 +134,7 @@ public class UserAccessCheckerTest {
         uacRepository.add(f1vf2vf3vW);
     }
 
-    @Test
+    @AfterEach
     public void tearDown() {
         Mockito.reset(uac);
         uacRepository.clear();
@@ -244,6 +246,18 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field3", "value3"))
                 .build();
         assertEquals(UserAccessLevel.None, checker.getLevel("user2", ri));
+    }
+
+    @Test
+    public void testAccessLevelNoneForNullPermissionSet() {
+        Mockito.when(uac.getPermissionSet("user1")).thenReturn(null);
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2vf3v));
+    }
+
+    @Test
+    public void testAccessLevelNoneForEmptyPermissionSet() {
+        Mockito.when(uac.getPermissionSet("user1")).thenReturn(new HashSet<>());
+        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2vf3v));
     }
 
     @Test
@@ -668,5 +682,84 @@ public class UserAccessCheckerTest {
                 .field(new WildcardField("field3"))
                 .build();
         assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2vf3w));
+    }
+
+    @Test
+    public void testIdentityFieldObjectMethods() {
+        ValueField field = new ValueField("field", "value");
+        ValueField sameField = new ValueField("field", "value");
+        ValueField nullField = new ValueField(null, null);
+        ValueField sameNullField = new ValueField(null, null);
+
+        assertEquals(field, field);
+        assertEquals(field, sameField);
+        assertEquals(field.hashCode(), sameField.hashCode());
+        assertEquals(nullField, sameNullField);
+        assertEquals(nullField.hashCode(), sameNullField.hashCode());
+        assertEquals("IdentityField{name='field', value='value'}", field.toString());
+
+        assertNotEquals(field, null);
+        assertNotEquals(field, new WildcardField("field"));
+        assertNotEquals(field, new ValueField("other", "value"));
+        assertNotEquals(field, new ValueField("field", "other"));
+        assertNotEquals(nullField, new ValueField("field", null));
+        assertNotEquals(nullField, new ValueField(null, "value"));
+    }
+
+    @Test
+    public void testResourceIdentityObjectMethods() {
+        ResourceIdentity identity = new Builder()
+                .field(new ValueField("field", "value"))
+                .build();
+        ResourceIdentity sameIdentity = new Builder()
+                .field(new ValueField("field", "value"))
+                .build();
+        ResourceIdentity otherIdentity = new Builder()
+                .field(new ValueField("field", "other"))
+                .build();
+
+        assertEquals(identity, identity);
+        assertEquals(identity, sameIdentity);
+        assertEquals(identity.hashCode(), sameIdentity.hashCode());
+        assertNotEquals(identity, otherIdentity);
+        assertNotEquals(identity, null);
+        assertNotEquals(identity, "identity");
+    }
+
+    @Test
+    public void testResourcePermissionObjectMethods() {
+        ResourcePermission permission = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
+        ResourcePermission samePermission = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
+        ResourcePermission otherIdentity = new ResourcePermission(f1wf2vf3v, UserAccessLevel.Read);
+        ResourcePermission otherAccessLevel = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Write);
+        ResourcePermission nullPermission = new ResourcePermission(null, null);
+        ResourcePermission sameNullPermission = new ResourcePermission(null, null);
+        ResourcePermission nullIdentityWithLevel = new ResourcePermission(null, UserAccessLevel.Read);
+        ResourcePermission identityWithNullLevel = new ResourcePermission(f1vf2vf3v, null);
+
+        assertEquals(permission, permission);
+        assertEquals(permission, samePermission);
+        assertEquals(permission.hashCode(), samePermission.hashCode());
+        assertEquals(nullPermission, sameNullPermission);
+        assertEquals(nullPermission.hashCode(), sameNullPermission.hashCode());
+        assertEquals(f1vf2vf3v, permission.getIdentity());
+        assertEquals(UserAccessLevel.Read, permission.getAccessLevel());
+
+        assertNotEquals(permission, null);
+        assertNotEquals(permission, "permission");
+        assertNotEquals(permission, otherIdentity);
+        assertNotEquals(permission, otherAccessLevel);
+        assertNotEquals(nullPermission, nullIdentityWithLevel);
+        assertNotEquals(nullPermission, identityWithNullLevel);
+    }
+
+    @Test
+    public void testFieldMapIsImmutable() {
+        ResourceIdentity identity = new Builder()
+                .field(new ValueField("field", "value"))
+                .build();
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> identity.getFieldMap().put("other", new ValueField("other", "value")));
     }
 }

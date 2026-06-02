@@ -1,0 +1,113 @@
+plugins {
+    id 'java-library'
+    id 'jacoco'
+    id 'maven-publish'
+}
+
+group = 'vt.uac'
+version = providers.gradleProperty('releaseVersion').orElse('1.0-SNAPSHOT').get()
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:6.0.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.23.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = '0.8.14'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+check {
+    dependsOn jacocoTestCoverageVerification
+}
+
+jar {
+    archiveBaseName = 'uacjava'
+    manifest {
+        attributes(
+                'Bundle-Name': 'uacjava',
+                'Bundle-SymbolicName': 'uac',
+                'Bundle-Version': project.version.toString(),
+                'Automatic-Module-Name': 'uac'
+        )
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'uacjava'
+            pom {
+                name = 'UserAccessControl'
+                description = 'Small Java access-control helper library for resolving resource permissions.'
+                url = 'https://github.com/vtsyryuk/UserAccessControl'
+                licenses {
+                    license {
+                        name = 'BSD 3-Clause License'
+                        url = 'https://opensource.org/license/bsd-3-clause'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/vtsyryuk/UserAccessControl.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:vtsyryuk/UserAccessControl.git'
+                    url = 'https://github.com/vtsyryuk/UserAccessControl'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = uri('https://maven.pkg.github.com/vtsyryuk/UserAccessControl')
+            credentials {
+                username = providers.gradleProperty('gpr.user')
+                        .orElse(providers.environmentVariable('GITHUB_ACTOR'))
+                        .orElse('')
+                        .get()
+                password = providers.gradleProperty('gpr.key')
+                        .orElse(providers.environmentVariable('GITHUB_TOKEN'))
+                        .orElse('')
+                        .get()
+            }
+        }
+    }
+}

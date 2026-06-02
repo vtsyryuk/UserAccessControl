@@ -1,25 +1,23 @@
 package uac;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class ResourceIdentity {
 
-    private final ImmutableMap<String, IdentityField> fieldMap;
+    private final Map<String, IdentityField> fieldMap;
 
     private ResourceIdentity(List<IdentityField> fields) {
-        Map<String, IdentityField> fieldMap = new Hashtable<>(fields.size());
+        Map<String, IdentityField> fieldMap = new LinkedHashMap<>(fields.size());
         for (IdentityField f : fields) {
             fieldMap.put(f.getName(), f);
         }
-        this.fieldMap = ImmutableMap.<String, IdentityField>builder().putAll(fieldMap).build();
+        this.fieldMap = Map.copyOf(fieldMap);
     }
 
-    public ImmutableMap<String, IdentityField> getFieldMap() {
+    public Map<String, IdentityField> getFieldMap() {
         return fieldMap;
     }
 
