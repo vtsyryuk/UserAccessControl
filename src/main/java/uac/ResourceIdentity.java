@@ -10,11 +10,11 @@ public class ResourceIdentity {
     private final Map<String, IdentityField> fieldMap;
 
     private ResourceIdentity(List<IdentityField> fields) {
-        Map<String, IdentityField> fieldMap = new LinkedHashMap<>(fields.size());
+        Map<String, IdentityField> _fieldMap = new LinkedHashMap<>(fields.size());
         for (IdentityField f : fields) {
-            fieldMap.put(f.getName(), f);
+            _fieldMap.put(f.getName(), f);
         }
-        this.fieldMap = Map.copyOf(fieldMap);
+        this.fieldMap = Map.copyOf(_fieldMap);
     }
 
     public Map<String, IdentityField> getFieldMap() {

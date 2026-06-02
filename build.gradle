@@ -5,15 +5,18 @@ plugins {
 }
 
 group = 'vt.uac'
-version = providers.gradleProperty('releaseVersion').orElse('1.0-SNAPSHOT').get()
+version = providers.gradleProperty('releaseVersion').orElse('2.0-SNAPSHOT').get()
 
-def configuredJavaVersion = providers.gradleProperty('javaVersion').map(Integer.&parseInt)
-def configuredCoverageMinimum = providers.gradleProperty('coverageMinimum').map(BigDecimal::new)
+def configuredJavaVersion = providers.gradleProperty('javaVersion').map { Integer.parseInt(it) }
+def configuredCoverageMinimum = providers.gradleProperty('coverageMinimum').map { new BigDecimal(it) }
+def configuredJavaCompatibility = configuredJavaVersion.map { JavaVersion.toVersion(it.toString()) }
 
 java {
     toolchain {
-        languageVersion = configuredJavaVersion.map(JavaLanguageVersion::of).get()
+        languageVersion = configuredJavaVersion.map { JavaLanguageVersion.of(it) }.get()
     }
+    sourceCompatibility = configuredJavaCompatibility.get()
+    targetCompatibility = configuredJavaCompatibility.get()
     withSourcesJar()
     withJavadocJar()
 }

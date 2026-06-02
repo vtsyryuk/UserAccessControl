@@ -1,0 +1,39 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.gradle.enabled": true,
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.offline.enabled": false,
+    "java.import.gradle.arguments": "--no-daemon",
+    "java.import.gradle.java.home": "/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home",
+    "gradle.wrapperEnabled": true,
+    "gradle.autoDetect": "on",
+    "java.jdt.ls.java.home": "/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-25",
+            "path": "/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home",
+            "default": true
+        }
+    ],
+    "java.test.defaultConfig": "JUnit",
+    "java.test.config": [
+        {
+            "name": "JUnit",
+            "workingDirectory": "${workspaceFolder}",
+            "vmArgs": [
+                "-ea"
+            ]
+        }
+    ],
+    "files.exclude": {
+        "**/.gradle": true,
+        "**/build": true,
+        "**/target": true
+    },
+    "search.exclude": {
+        "**/.gradle": true,
+        "**/build": true,
+        "**/target": true
+    }
+}
