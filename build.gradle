@@ -7,24 +7,27 @@ plugins {
 group = 'vt.uac'
 version = providers.gradleProperty('releaseVersion').orElse('1.0-SNAPSHOT').get()
 
+def configuredJavaVersion = providers.gradleProperty('javaVersion').map(Integer.&parseInt)
+def configuredCoverageMinimum = providers.gradleProperty('coverageMinimum').map(BigDecimal::new)
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = configuredJavaVersion.map(JavaLanguageVersion::of).get()
     }
     withSourcesJar()
     withJavadocJar()
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.release = 25
+    options.release = configuredJavaVersion.get()
     options.encoding = 'UTF-8'
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:6.0.2')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.mockito:mockito-core:5.23.0'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testImplementation libs.mockito.core
+    testRuntimeOnly libs.junit.platform.launcher
 }
 
 test {
@@ -33,7 +36,7 @@ test {
 }
 
 jacoco {
-    toolVersion = '0.8.14'
+    toolVersion = libs.versions.jacoco.get()
 }
 
 jacocoTestReport {
@@ -49,7 +52,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.80
+                minimum = configuredCoverageMinimum.get()
             }
         }
     }

@@ -9,7 +9,7 @@ Small Java access-control helper library for resolving the effective permission 
 
 ## Build
 
-This project uses Gradle 9.5.1 and JDK 25.
+This project uses Gradle 9.5.1 and JDK 25 by default. Dependency versions live in `gradle/libs.versions.toml`; build knobs such as `javaVersion` and `coverageMinimum` live in `gradle.properties` and can be overridden with `-P`.
 
 ```sh
 ./gradlew clean check
