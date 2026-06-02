@@ -14,17 +14,11 @@ permissions:
 
 jobs:
   dependency-review:
+    if: vars.ENABLE_DEPENDENCY_REVIEW == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Dependency Review
-        id: dependency-review
-        continue-on-error: true
         uses: actions/dependency-review-action@v5
-
-      - name: Dependency graph disabled notice
-        if: steps.dependency-review.outcome == 'failure'
-        run: |
-          echo "::notice title=Dependency review skipped::GitHub dependency review requires Dependency graph. Enable it in the repository Code security settings to enforce dependency review on pull requests."
