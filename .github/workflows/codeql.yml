@@ -34,8 +34,15 @@ jobs:
           languages: java-kotlin
           build-mode: manual
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: https://gradle.com/terms-of-service
+          build-scan-terms-of-use-agree: 'yes'
+
       - name: Build
-        run: ./gradlew clean classes testClasses
+        run: ./gradlew clean classes testClasses --scan
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

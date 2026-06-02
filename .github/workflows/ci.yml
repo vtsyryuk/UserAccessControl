@@ -30,16 +30,13 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: https://gradle.com/terms-of-service
+          build-scan-terms-of-use-agree: 'yes'
 
       - name: Build, test, and verify coverage
-        run: ./gradlew clean build
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
-        with:
-          files: build/reports/jacoco/test/jacocoTestReport.xml
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+        run: ./gradlew clean build --scan
 
       - name: Publish build artifacts
         uses: actions/upload-artifact@v5

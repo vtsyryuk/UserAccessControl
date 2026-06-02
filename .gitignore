@@ -46,6 +46,7 @@ Temporary Items
 .gradle/
 build/
 target/
+bin/
 *.class
 
 # IDEs

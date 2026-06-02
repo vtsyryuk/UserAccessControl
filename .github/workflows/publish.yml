@@ -8,7 +8,7 @@ on:
       releaseVersion:
         description: Version to publish
         required: true
-        default: 1.0-SNAPSHOT
+        default: 2.0.0
 
 permissions:
   contents: read
@@ -34,9 +34,13 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: https://gradle.com/terms-of-service
+          build-scan-terms-of-use-agree: 'yes'
 
       - name: Publish to GitHub Packages
-        run: ./gradlew clean publish -PreleaseVersion="${RELEASE_VERSION}"
+        run: ./gradlew clean publish -PreleaseVersion="${RELEASE_VERSION}" --scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ github.event.release.tag_name || inputs.releaseVersion }}

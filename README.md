@@ -3,7 +3,6 @@
 [![CI](https://github.com/vtsyryuk/UserAccessControl/actions/workflows/ci.yml/badge.svg)](https://github.com/vtsyryuk/UserAccessControl/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/vtsyryuk/UserAccessControl/actions/workflows/codeql.yml/badge.svg)](https://github.com/vtsyryuk/UserAccessControl/actions/workflows/codeql.yml)
 [![Dependency Review](https://github.com/vtsyryuk/UserAccessControl/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/vtsyryuk/UserAccessControl/actions/workflows/dependency-review.yml)
-[![codecov](https://codecov.io/gh/vtsyryuk/UserAccessControl/branch/master/graph/badge.svg)](https://codecov.io/gh/vtsyryuk/UserAccessControl)
 
 Small Java access-control helper library for resolving the effective permission for a user/resource identity pair.
 
@@ -15,14 +14,14 @@ This project uses Gradle 9.5.1 and JDK 25 by default. Dependency versions live i
 ./gradlew clean check
 ```
 
-The CI workflow runs tests, enforces JaCoCo coverage verification, uploads the HTML/XML coverage reports as artifacts, and publishes coverage to Codecov. CodeQL, dependency review, Dependabot, and Gradle dependency submission are enabled for supply-chain and code scanning.
+The CI workflow runs tests, enforces JaCoCo coverage verification, and uploads the HTML/XML coverage reports as artifacts. CodeQL, dependency review, Dependabot, and Gradle dependency submission are enabled for supply-chain and code scanning.
 
 ## Publishing
 
 GitHub Packages publishing runs from the `Publish` workflow when a GitHub release is created, or manually through `workflow_dispatch`.
 
 ```sh
-./gradlew publish -PreleaseVersion=1.0.0
+./gradlew publish -PreleaseVersion=2.0.0
 ```
 
 ## Deployment

@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'eclipse'
     id 'jacoco'
     id 'maven-publish'
 }
@@ -24,6 +25,23 @@ java {
 tasks.withType(JavaCompile).configureEach {
     options.release = configuredJavaVersion.get()
     options.encoding = 'UTF-8'
+}
+
+eclipse {
+    jdt {
+        sourceCompatibility = configuredJavaCompatibility.get()
+        targetCompatibility = configuredJavaCompatibility.get()
+        javaRuntimeName = "JavaSE-${configuredJavaVersion.get()}"
+    }
+    classpath {
+        downloadSources = true
+        downloadJavadoc = true
+        file {
+            whenMerged { classpath ->
+                classpath.entries.removeAll { it.kind == 'lib' }
+            }
+        }
+    }
 }
 
 dependencies {
