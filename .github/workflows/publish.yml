@@ -40,7 +40,7 @@ jobs:
           build-scan-terms-of-use-agree: 'yes'
 
       - name: Publish to GitHub Packages
-        run: ./gradlew clean publish -PreleaseVersion="${RELEASE_VERSION}" --scan
+        run: ./gradlew clean build jacocoTestReport publish -PreleaseVersion="${RELEASE_VERSION}" --scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ github.event.release.tag_name || inputs.releaseVersion }}
