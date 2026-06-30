@@ -1,6 +1,6 @@
 [versions]
 jacoco = "0.8.14"
-junit = "6.0.2"
+junit = "6.1.1"
 mockito = "5.23.0"
 
 [libraries]
