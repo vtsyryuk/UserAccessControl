@@ -1,5 +1,5 @@
 package uac;
 
 public enum UserAccessLevel {
-    None, Read, Write
+    NONE, READ, WRITE
 }

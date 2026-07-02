@@ -8,6 +8,6 @@ public class ValueField extends IdentityField {
 
     @Override
     public IdentityType getType() {
-        return IdentityType.Value;
+        return IdentityType.VALUE;
     }
 }

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserAccessCheckerTest {
+class UserAccessCheckerTest {
 
     private UserAccessChecker checker;
     private UserAccessControl uac;
@@ -27,7 +27,7 @@ public class UserAccessCheckerTest {
     private ResourceIdentity f1vf2vf3v;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         uac = Mockito.mock(UserAccessControl.class);
         checker = new UserAccessChecker(uac);
         uacRepository = new HashSet<>();
@@ -58,60 +58,60 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        ResourcePermission f1wf2vf3vN = new ResourcePermission(f1wf2vf3v, UserAccessLevel.None);
-        ResourcePermission f1wf2vf3vR = new ResourcePermission(f1wf2vf3v, UserAccessLevel.Read);
-        ResourcePermission f1wf2vf3vW = new ResourcePermission(f1wf2vf3v, UserAccessLevel.Write);
+        ResourcePermission f1wf2vf3vN = new ResourcePermission(f1wf2vf3v, UserAccessLevel.NONE);
+        ResourcePermission f1wf2vf3vR = new ResourcePermission(f1wf2vf3v, UserAccessLevel.READ);
+        ResourcePermission f1wf2vf3vW = new ResourcePermission(f1wf2vf3v, UserAccessLevel.WRITE);
 
         f1vf2wf3v = new Builder()
                 .field(new ValueField("field1", "value1"))
                 .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        ResourcePermission f1vf2wf3vR = new ResourcePermission(f1vf2wf3v, UserAccessLevel.Read);
-        ResourcePermission f1vf2wf3vW = new ResourcePermission(f1vf2wf3v, UserAccessLevel.Write);
+        ResourcePermission f1vf2wf3vR = new ResourcePermission(f1vf2wf3v, UserAccessLevel.READ);
+        ResourcePermission f1vf2wf3vW = new ResourcePermission(f1vf2wf3v, UserAccessLevel.WRITE);
 
         f1vf2vf3w = new Builder()
                 .field(new ValueField("field1", "value1"))
                 .field(new ValueField("field2", "value2"))
                 .field(new WildcardField("field3"))
                 .build();
-        ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.Write);
+        ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.WRITE);
 
         f1wf2wf3w = new Builder()
                 .field(new WildcardField("field1"))
                 .field(new WildcardField("field2"))
                 .field(new WildcardField("field3"))
                 .build();
-        ResourcePermission f1wf2wf3wR = new ResourcePermission(f1wf2wf3w, UserAccessLevel.Read);
+        ResourcePermission f1wf2wf3wR = new ResourcePermission(f1wf2wf3w, UserAccessLevel.READ);
 
         f1wf2wf3v = new Builder()
                 .field(new WildcardField("field1"))
                 .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        ResourcePermission f1wf2wf3vR = new ResourcePermission(f1wf2wf3v, UserAccessLevel.Read);
+        ResourcePermission f1wf2wf3vR = new ResourcePermission(f1wf2wf3v, UserAccessLevel.READ);
 
         f1vf2wf3w = new Builder()
                 .field(new ValueField("field1", "value1"))
                 .field(new WildcardField("field2"))
                 .field(new WildcardField("field3"))
                 .build();
-        ResourcePermission f1vf2wf3wN = new ResourcePermission(f1vf2wf3w, UserAccessLevel.None);
+        ResourcePermission f1vf2wf3wN = new ResourcePermission(f1vf2wf3w, UserAccessLevel.NONE);
 
         f1wf2vf3w = new Builder()
                 .field(new WildcardField("field1"))
                 .field(new ValueField("field2", "value2"))
                 .field(new WildcardField("field3"))
                 .build();
-        ResourcePermission f1wf2vf3wR = new ResourcePermission(f1wf2vf3w, UserAccessLevel.Read);
+        ResourcePermission f1wf2vf3wR = new ResourcePermission(f1wf2vf3w, UserAccessLevel.READ);
 
         f1vf2vf3v = new Builder()
                 .field(new ValueField("field1", "value1"))
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        ResourcePermission f1vf2vf3vR = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
-        ResourcePermission f1vf2vf3vW = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Write);
+        ResourcePermission f1vf2vf3vR = new ResourcePermission(f1vf2vf3v, UserAccessLevel.READ);
+        ResourcePermission f1vf2vf3vW = new ResourcePermission(f1vf2vf3v, UserAccessLevel.WRITE);
 
         uacRepository.add(f1wf2vf3vN);
         uacRepository.add(f1wf2vf3vR);
@@ -135,82 +135,86 @@ public class UserAccessCheckerTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         Mockito.reset(uac);
         uacRepository.clear();
     }
 
-    @Test
-    public void testAccessLevelNoneForEmptyIdentity() {
-        ValueField emptyField = new ValueField("", "");
-        ResourceIdentity ri = new Builder().field(emptyField).build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", ri));
+    private void assertAccess(UserAccessLevel expected, ResourceIdentity identity) {
+        assertEquals(expected, checker.getLevel("user1", identity));
     }
 
     @Test
-    public void testAccessLevelNoneForNotRegisteredIdentity() {
+    void testAccessLevelNoneForEmptyIdentity() {
+        ValueField emptyField = new ValueField("", "");
+        ResourceIdentity ri = new Builder().field(emptyField).build();
+        assertAccess(UserAccessLevel.NONE, ri);
+    }
+
+    @Test
+    void testAccessLevelNoneForNotRegisteredIdentity() {
         ResourceIdentity ri = new Builder()
                 .field(new ValueField("field", "value"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", ri));
+        assertAccess(UserAccessLevel.NONE, ri);
     }
 
     @Test
-    public void testIncompleteIdentityAllowed() {
+    void testIncompleteIdentityAllowed() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
-        var _f1wf2vf3w = new Builder()
+        var f1wf2vf3wLookup = new Builder()
                 .field(new ValueField("field2", "value2"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", _f1wf2vf3w));
+        assertAccess(UserAccessLevel.READ, f1wf2vf3wLookup);
 
-        ResourceIdentity _f1wf2xf3w = new Builder()
+        ResourceIdentity f1wf2xf3wLookup = new Builder()
                 .field(new ValueField("field2", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", _f1wf2xf3w));
+        assertAccess(UserAccessLevel.READ, f1wf2xf3wLookup);
 
-        ResourceIdentity _f1vf2wf3v = new Builder()
+        ResourceIdentity f1vf2wf3vLookup = new Builder()
                 .field(new ValueField("field1", "value1"))
                 .field(new ValueField("field3", "value3"))
                 .field(new ValueField("field4", "value4"))
                 .build();
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", _f1vf2wf3v));
+        assertAccess(UserAccessLevel.WRITE, f1vf2wf3vLookup);
     }
 
     @Test
-    public void testIncompleteIdentityCannotBeMatched() {
+    void testIncompleteIdentityCannotBeMatched() {
         uacRepository.clear();
-        ResourcePermission f1vf2vf3vR = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
-        ResourcePermission f1vf2vf3vW = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Write);
-        ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.Write);
+        ResourcePermission f1vf2vf3vR = new ResourcePermission(f1vf2vf3v, UserAccessLevel.READ);
+        ResourcePermission f1vf2vf3vW = new ResourcePermission(f1vf2vf3v, UserAccessLevel.WRITE);
+        ResourcePermission f1vf2vf3wW = new ResourcePermission(f1vf2vf3w, UserAccessLevel.WRITE);
 
-        assertEquals(f1vf2vf3vR, new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read));
+        assertEquals(f1vf2vf3vR, new ResourcePermission(f1vf2vf3v, UserAccessLevel.READ));
 
         uacRepository.add(f1vf2vf3wW);
         uacRepository.add(f1vf2vf3vR);
         uacRepository.add(f1vf2vf3vW);
 
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
-        ResourceIdentity _f1wf2vf3w = new Builder()
+        ResourceIdentity f1wf2vf3wLookup = new Builder()
                 .field(new ValueField("field2", "value2"))
                 .build();
-        assertNotEquals(_f1wf2vf3w, this.f1wf2vf3w);
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", _f1wf2vf3w));
+        assertNotEquals(f1wf2vf3wLookup, this.f1wf2vf3w);
+        assertAccess(UserAccessLevel.NONE, f1wf2vf3wLookup);
 
-        ResourceIdentity _f1wf2xf3w = new Builder()
+        ResourceIdentity f1wf2xf3wLookup = new Builder()
                 .field(new ValueField("field2", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", _f1wf2xf3w));
+        assertAccess(UserAccessLevel.NONE, f1wf2xf3wLookup);
 
-        ResourceIdentity _f1vf2wf3v = new Builder()
+        ResourceIdentity f1vf2wf3vLookup = new Builder()
                 .field(new ValueField("field1", "value1"))
                 .field(new ValueField("field3", "value3"))
                 .field(new ValueField("field4", "value4"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", _f1vf2wf3v));
+        assertAccess(UserAccessLevel.NONE, f1vf2wf3vLookup);
     }
 
     @Test
-    public void testUnknownFieldsAreIgnored() {
+    void testUnknownFieldsAreIgnored() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
 
         ResourceIdentity f1vf2xf3v = new Builder()
@@ -220,11 +224,11 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field4", "value4"))
                 .field(new ValueField("field5", "value5"))
                 .build();
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2xf3v));
+        assertAccess(UserAccessLevel.WRITE, f1vf2xf3v);
     }
 
     @Test
-    public void testDuplicateFieldOverridesLastDefinition() {
+    void testDuplicateFieldOverridesLastDefinition() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
 
         ResourceIdentity ri = new Builder()
@@ -238,42 +242,42 @@ public class UserAccessCheckerTest {
     }
 
     @Test
-    public void testAccessLevelNoneForUnknownUser() {
+    void testAccessLevelNoneForUnknownUser() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
         ResourceIdentity ri = new Builder()
                 .field(new WildcardField("field1"))
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user2", ri));
+        assertEquals(UserAccessLevel.NONE, checker.getLevel("user2", ri));
     }
 
     @Test
-    public void testAccessLevelNoneForNullPermissionSet() {
+    void testAccessLevelNoneForNullPermissionSet() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(null);
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2vf3v));
+        assertAccess(UserAccessLevel.NONE, f1vf2vf3v);
     }
 
     @Test
-    public void testAccessLevelNoneForEmptyPermissionSet() {
+    void testAccessLevelNoneForEmptyPermissionSet() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(new HashSet<>());
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2vf3v));
+        assertAccess(UserAccessLevel.NONE, f1vf2vf3v);
     }
 
     @Test
-    public void testResultedPermissionIsUnionOfReadAndWrite() {
+    void testResultedPermissionIsUnionOfReadAndWrite() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2vf3v));
+        assertAccess(UserAccessLevel.WRITE, f1vf2vf3v);
     }
 
     @Test
-    public void testNoneRejectsReadWrite() {
+    void testNoneRejectsReadWrite() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1wf2vf3v));
+        assertAccess(UserAccessLevel.NONE, f1wf2vf3v);
     }
 
     @Test
-    public void testExactMatchingIdentities() {
+    void testExactMatchingIdentities() {
         Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
 
         /*
@@ -297,18 +301,18 @@ public class UserAccessCheckerTest {
         | value1 | value2 | value3 | Write | Write  |
         */
 
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1wf2vf3v));
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2wf3v));
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2vf3w));
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3w));
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3v));
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3w));
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2vf3w));
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2vf3v));
+        assertAccess(UserAccessLevel.NONE, f1wf2vf3v);
+        assertAccess(UserAccessLevel.WRITE, f1vf2wf3v);
+        assertAccess(UserAccessLevel.WRITE, f1vf2vf3w);
+        assertAccess(UserAccessLevel.READ, f1wf2wf3w);
+        assertAccess(UserAccessLevel.READ, f1wf2wf3v);
+        assertAccess(UserAccessLevel.NONE, f1vf2wf3w);
+        assertAccess(UserAccessLevel.READ, f1wf2vf3w);
+        assertAccess(UserAccessLevel.WRITE, f1vf2vf3v);
     }
 
     @Test
-    public void testWildcardRules() {
+    void testWildcardRules() {
         /*
          ----------------------------------
         | field1 | field2 | field3 | level |
@@ -363,8 +367,8 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1wf2vf3v));
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1xf2vf3v));
+        assertAccess(UserAccessLevel.NONE, f1wf2vf3v);
+        assertAccess(UserAccessLevel.NONE, f1xf2vf3v);
 
 
         /*
@@ -380,8 +384,8 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2wf3v));
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2xf3v));
+        assertAccess(UserAccessLevel.WRITE, f1vf2wf3v);
+        assertAccess(UserAccessLevel.WRITE, f1vf2xf3v);
 
         /*
          ----------------------------------
@@ -396,8 +400,8 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2vf3w));
-        assertEquals(UserAccessLevel.Write, checker.getLevel("user1", f1vf2vf3x));
+        assertAccess(UserAccessLevel.WRITE, f1vf2vf3w);
+        assertAccess(UserAccessLevel.WRITE, f1vf2vf3x);
 
         /*
          ----------------------------------
@@ -412,7 +416,7 @@ public class UserAccessCheckerTest {
         |   *    |  xyz   |  xyz   | Read  |
         |  xyz   |  xyz   |   *    | Read  |
         */
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3w));
+        assertAccess(UserAccessLevel.READ, f1wf2wf3w);
 
         /*
          ----------------------------------
@@ -426,7 +430,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2xf3x));
+        assertAccess(UserAccessLevel.READ, f1xf2xf3x);
 
         /*
          ----------------------------------
@@ -440,7 +444,7 @@ public class UserAccessCheckerTest {
                 .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3x));
+        assertAccess(UserAccessLevel.READ, f1wf2wf3x);
 
         /*
          ----------------------------------
@@ -454,7 +458,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new WildcardField("field3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2xf3w));
+        assertAccess(UserAccessLevel.READ, f1wf2xf3w);
 
         /*
          ----------------------------------
@@ -468,7 +472,7 @@ public class UserAccessCheckerTest {
                 .field(new WildcardField("field2"))
                 .field(new WildcardField("field3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2wf3w));
+        assertAccess(UserAccessLevel.READ, f1xf2wf3w);
 
         /*
          ----------------------------------
@@ -482,7 +486,7 @@ public class UserAccessCheckerTest {
                 .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2wf3x));
+        assertAccess(UserAccessLevel.READ, f1xf2wf3x);
 
         /*
          ----------------------------------
@@ -496,7 +500,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2xf3x));
+        assertAccess(UserAccessLevel.READ, f1wf2xf3x);
 
         /*
          ----------------------------------
@@ -510,7 +514,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new WildcardField("field3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2xf3w));
+        assertAccess(UserAccessLevel.READ, f1xf2xf3w);
 
         /*
          ----------------------------------
@@ -522,7 +526,7 @@ public class UserAccessCheckerTest {
         |   *    |  xyz   | value3 | Read  |
          ----------------------------------
         */
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2wf3v));
+        assertAccess(UserAccessLevel.READ, f1wf2wf3v);
 
         /*
          ----------------------------------
@@ -537,7 +541,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2xf3v));
+        assertAccess(UserAccessLevel.READ, f1xf2xf3v);
 
         /*
          ----------------------------------
@@ -552,7 +556,7 @@ public class UserAccessCheckerTest {
                 .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2wf3v));
+        assertAccess(UserAccessLevel.READ, f1xf2wf3v);
 
         /*
          ----------------------------------
@@ -567,7 +571,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "value3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2xf3v));
+        assertAccess(UserAccessLevel.READ, f1wf2xf3v);
 
         /*
          ----------------------------------
@@ -579,7 +583,7 @@ public class UserAccessCheckerTest {
         | value1 |   *    |  xyz   | None  |
          ----------------------------------
         */
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3w));
+        assertAccess(UserAccessLevel.NONE, f1vf2wf3w);
 
         /*
          ----------------------------------
@@ -594,7 +598,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2xf3x));
+        assertAccess(UserAccessLevel.NONE, f1vf2xf3x);
 
         /*
          ----------------------------------
@@ -609,7 +613,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "xyz"))
                 .field(new WildcardField("field3"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2xf3w));
+        assertAccess(UserAccessLevel.NONE, f1vf2xf3w);
 
         /*
          ----------------------------------
@@ -624,7 +628,7 @@ public class UserAccessCheckerTest {
                 .field(new WildcardField("field2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.None, checker.getLevel("user1", f1vf2wf3x));
+        assertAccess(UserAccessLevel.NONE, f1vf2wf3x);
 
         /*
          ----------------------------------
@@ -636,7 +640,7 @@ public class UserAccessCheckerTest {
         |  xyz   | value2 |   *    | Read  |
          ----------------------------------
         */
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2vf3w));
+        assertAccess(UserAccessLevel.READ, f1wf2vf3w);
 
         /*
          ----------------------------------
@@ -651,7 +655,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2vf3x));
+        assertAccess(UserAccessLevel.READ, f1xf2vf3x);
 
             /*
          ----------------------------------
@@ -666,7 +670,7 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new ValueField("field3", "xyz"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1wf2vf3x));
+        assertAccess(UserAccessLevel.READ, f1wf2vf3x);
 
         /*
          ----------------------------------
@@ -681,11 +685,11 @@ public class UserAccessCheckerTest {
                 .field(new ValueField("field2", "value2"))
                 .field(new WildcardField("field3"))
                 .build();
-        assertEquals(UserAccessLevel.Read, checker.getLevel("user1", f1xf2vf3w));
+        assertAccess(UserAccessLevel.READ, f1xf2vf3w);
     }
 
     @Test
-    public void testIdentityFieldObjectMethods() {
+    void testIdentityFieldObjectMethods() {
         ValueField field = new ValueField("field", "value");
         ValueField sameField = new ValueField("field", "value");
         ValueField nullField = new ValueField(null, null);
@@ -698,7 +702,7 @@ public class UserAccessCheckerTest {
         assertEquals(nullField.hashCode(), sameNullField.hashCode());
         assertEquals("IdentityField{name='field', value='value'}", field.toString());
 
-        assertNotEquals(field, null);
+        assertNotEquals(null, field);
         assertNotEquals(field, new WildcardField("field"));
         assertNotEquals(field, new ValueField("other", "value"));
         assertNotEquals(field, new ValueField("field", "other"));
@@ -707,7 +711,7 @@ public class UserAccessCheckerTest {
     }
 
     @Test
-    public void testResourceIdentityObjectMethods() {
+    void testResourceIdentityObjectMethods() {
         ResourceIdentity identity = new Builder()
                 .field(new ValueField("field", "value"))
                 .build();
@@ -722,19 +726,19 @@ public class UserAccessCheckerTest {
         assertEquals(identity, sameIdentity);
         assertEquals(identity.hashCode(), sameIdentity.hashCode());
         assertNotEquals(identity, otherIdentity);
-        assertNotEquals(identity, null);
-        assertNotEquals(identity, "identity");
+        assertNotEquals(null, identity);
+        assertNotEquals("identity", identity);
     }
 
     @Test
-    public void testResourcePermissionObjectMethods() {
-        ResourcePermission permission = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
-        ResourcePermission samePermission = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Read);
-        ResourcePermission otherIdentity = new ResourcePermission(f1wf2vf3v, UserAccessLevel.Read);
-        ResourcePermission otherAccessLevel = new ResourcePermission(f1vf2vf3v, UserAccessLevel.Write);
+    void testResourcePermissionObjectMethods() {
+        ResourcePermission permission = new ResourcePermission(f1vf2vf3v, UserAccessLevel.READ);
+        ResourcePermission samePermission = new ResourcePermission(f1vf2vf3v, UserAccessLevel.READ);
+        ResourcePermission otherIdentity = new ResourcePermission(f1wf2vf3v, UserAccessLevel.READ);
+        ResourcePermission otherAccessLevel = new ResourcePermission(f1vf2vf3v, UserAccessLevel.WRITE);
         ResourcePermission nullPermission = new ResourcePermission(null, null);
         ResourcePermission sameNullPermission = new ResourcePermission(null, null);
-        ResourcePermission nullIdentityWithLevel = new ResourcePermission(null, UserAccessLevel.Read);
+        ResourcePermission nullIdentityWithLevel = new ResourcePermission(null, UserAccessLevel.READ);
         ResourcePermission identityWithNullLevel = new ResourcePermission(f1vf2vf3v, null);
 
         assertEquals(permission, permission);
@@ -743,10 +747,10 @@ public class UserAccessCheckerTest {
         assertEquals(nullPermission, sameNullPermission);
         assertEquals(nullPermission.hashCode(), sameNullPermission.hashCode());
         assertEquals(f1vf2vf3v, permission.getIdentity());
-        assertEquals(UserAccessLevel.Read, permission.getAccessLevel());
+        assertEquals(UserAccessLevel.READ, permission.getAccessLevel());
 
-        assertNotEquals(permission, null);
-        assertNotEquals(permission, "permission");
+        assertNotEquals(null, permission);
+        assertNotEquals("permission", permission);
         assertNotEquals(permission, otherIdentity);
         assertNotEquals(permission, otherAccessLevel);
         assertNotEquals(nullPermission, nullIdentityWithLevel);
@@ -754,13 +758,15 @@ public class UserAccessCheckerTest {
     }
 
     @Test
-    public void testFieldMapIsImmutable() {
+    void testFieldMapIsImmutable() {
         ResourceIdentity identity = new Builder()
                 .field(new ValueField("field", "value"))
                 .build();
 
+        var fieldMap = identity.getFieldMap();
+        var otherField = new ValueField("other", "value");
         UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class,
-                () -> identity.getFieldMap().put("other", new ValueField("other", "value")));
+                () -> fieldMap.put("other", otherField));
         assertEquals(UnsupportedOperationException.class, exception.getClass());
     }
 }
