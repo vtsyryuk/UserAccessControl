@@ -34,4 +34,38 @@ GitHub Packages publishing runs from the `Publish` workflow when a GitHub releas
 
 ## Deployment
 
-This repository is currently a Java library, not a runnable service, so there is no cloud runtime to deploy directly. A good next step is to publish the package automatically to GitHub Packages and Maven Central, then deploy any consuming service from its own pipeline. If this should become a service, the clean path is to add a thin HTTP API module, containerize it, and deploy to a managed runtime such as Google Cloud Run, AWS App Runner, Azure Container Apps, or Fly.io.
+The library includes a small HTTP demo service that uses `UserAccessChecker` against a fake repository of keyed resources. It demonstrates:
+
+- write permission checks before resource acquisition
+- concurrent access attempts against the same resource key
+- automatic release when a lease TTL expires
+- explicit release through an HTTP command
+
+Run it locally:
+
+```sh
+./gradlew run
+```
+
+Then try:
+
+```sh
+curl http://localhost:8080/resources
+curl -X POST 'http://localhost:8080/acquire?user=alice&key=config/payment.yml&ttlSeconds=20'
+curl -X POST 'http://localhost:8080/simulate?key=config/payment.yml'
+curl -X POST 'http://localhost:8080/command?command=release&leaseId=<lease-id>'
+curl -X POST 'http://localhost:8080/release?key=config/payment.yml'
+```
+
+The demo users are:
+
+- `alice`: write access to all demo resources
+- `carol`: write access to `config/payment.yml`, read access elsewhere
+- `bob`: read-only access
+- `dave`: no access
+
+### Free Cloud Demo
+
+The repository includes `Dockerfile` and `render.yaml` for deploying the demo as a Render Free web service. In Render, create a new Blueprint from this repository. The service starts the Java demo container, exposes `/health`, and keeps lease state in memory.
+
+Render Free web services are suitable for demos and hobby projects, but they can spin down after idle time and their local filesystem is ephemeral. Do not use the demo deployment as production storage or coordination infrastructure.

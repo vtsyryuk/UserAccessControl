@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'application'
     id 'eclipse'
     id 'jacoco'
     id 'maven-publish'
@@ -11,6 +12,7 @@ version = providers.gradleProperty('releaseVersion').orElse('2.0-SNAPSHOT').get(
 def configuredJavaVersion = providers.gradleProperty('javaVersion').map { Integer.parseInt(it) }
 def configuredCoverageMinimum = providers.gradleProperty('coverageMinimum').map { new BigDecimal(it) }
 def configuredJavaCompatibility = configuredJavaVersion.map { JavaVersion.toVersion(it.toString()) }
+def coverageClassExcludes = ['uac/demo/**']
 
 java {
     toolchain {
@@ -51,6 +53,10 @@ dependencies {
     testRuntimeOnly libs.junit.platform.launcher
 }
 
+application {
+    mainClass = 'uac.demo.AccessControlDemoServer'
+}
+
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
@@ -62,6 +68,9 @@ jacoco {
 
 jacocoTestReport {
     dependsOn test
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: coverageClassExcludes)
+    }))
     reports {
         xml.required = true
         html.required = true
@@ -70,6 +79,9 @@ jacocoTestReport {
 }
 
 jacocoTestCoverageVerification {
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: coverageClassExcludes)
+    }))
     violationRules {
         rule {
             limit {

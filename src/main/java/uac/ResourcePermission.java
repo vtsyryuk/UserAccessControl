@@ -4,7 +4,7 @@ public class ResourcePermission {
     private final ResourceIdentity identity;
     private final UserAccessLevel accessLevel;
 
-    ResourcePermission(ResourceIdentity identity, UserAccessLevel accessLevel) {
+    public ResourcePermission(ResourceIdentity identity, UserAccessLevel accessLevel) {
         this.identity = identity;
         this.accessLevel = accessLevel;
     }
