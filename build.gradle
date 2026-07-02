@@ -4,6 +4,7 @@ plugins {
     id 'eclipse'
     id 'jacoco'
     id 'maven-publish'
+    alias(libs.plugins.sonarqube)
 }
 
 group = 'vt.uac'
@@ -93,6 +94,21 @@ jacocoTestCoverageVerification {
 
 check {
     dependsOn jacocoTestCoverageVerification
+}
+
+sonar {
+    properties {
+        property 'sonar.projectKey', providers.environmentVariable('SONAR_PROJECT_KEY')
+                .orElse('vtsyryuk_UserAccessControl')
+                .get()
+        property 'sonar.organization', providers.environmentVariable('SONAR_ORGANIZATION')
+                .orElse('vtsyryuk')
+                .get()
+        property 'sonar.coverage.jacoco.xmlReportPaths',
+                layout.buildDirectory.file('reports/jacoco/test/jacocoTestReport.xml').get().asFile.path
+        property 'sonar.exclusions', 'src/main/java/uac/demo/**'
+        property 'sonar.coverage.exclusions', 'src/main/java/uac/demo/**'
+    }
 }
 
 jar {

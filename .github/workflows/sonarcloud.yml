@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
 
     steps:
       - name: Checkout
@@ -31,7 +33,7 @@ jobs:
           java-version: '25'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92
         with:
           build-scan-publish: true
           build-scan-terms-of-use-url: https://gradle.com/terms-of-service
@@ -45,17 +47,14 @@ jobs:
         run: |
           echo "::notice title=SonarCloud scan skipped::Add repository secret SONAR_TOKEN from SonarCloud to enable analysis."
 
+      - name: SonarCloud project notice
+        if: env.SONAR_TOKEN != '' && (env.SONAR_ORGANIZATION == '' || env.SONAR_PROJECT_KEY == '')
+        run: |
+          echo "::notice title=SonarCloud scan skipped::Add repository variables SONAR_ORGANIZATION and SONAR_PROJECT_KEY after importing this repository in SonarCloud."
+
       - name: Analyze with SonarCloud
-        if: env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
+        if: env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=vtsyryuk_UserAccessControl
-            -Dsonar.organization=vtsyryuk
-            -Dsonar.sources=src/main/java
-            -Dsonar.tests=src/test/java
-            -Dsonar.java.binaries=build/classes/java/main
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+        run: ./gradlew sonar --scan
