@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'application'
     id 'eclipse'
     id 'jacoco'
     id 'maven-publish'
@@ -49,6 +50,10 @@ dependencies {
     testImplementation libs.junit.jupiter
     testImplementation libs.mockito.core
     testRuntimeOnly libs.junit.platform.launcher
+}
+
+application {
+    mainClass = 'uac.demo.AccessControlDemoServer'
 }
 
 test {
