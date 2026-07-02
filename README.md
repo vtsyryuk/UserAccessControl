@@ -27,7 +27,7 @@ Current JaCoCo aggregate coverage is 100% for instructions, branches, lines, met
 
 ## SonarCloud
 
-SonarCloud analysis runs from the `SonarCloud Analysis` workflow on pushes, pull requests, and manual dispatch. The workflow builds the Java test and JaCoCo XML reports before invoking SonarCloud.
+SonarCloud analysis runs from the `SonarCloud Analysis` workflow on pushes, pull requests, and manual dispatch. The workflow builds the Java test and JaCoCo XML reports before invoking the Sonar Gradle scanner.
 
 Required GitHub Actions configuration:
 
@@ -35,7 +35,7 @@ Required GitHub Actions configuration:
 - variable `SONAR_ORGANIZATION`: the SonarCloud organization key
 - variable `SONAR_PROJECT_KEY`: the SonarCloud project key for this repository
 
-The workflow reports coverage from `build/reports/jacoco/test/jacocoTestReport.xml`. Until the secret and both variables exist, the workflow builds the reports and exits successfully with a notice instead of failing the PR.
+The workflow reports coverage from `build/reports/jacoco/test/jacocoTestReport.xml`. The demo HTTP service is excluded from Sonar coverage to match the JaCoCo verification scope for the reusable library. Until the secret and both variables exist, the workflow builds the reports and exits successfully with a notice instead of failing the PR.
 
 ## Publishing
 
