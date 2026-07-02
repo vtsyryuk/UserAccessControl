@@ -1,0 +1,7 @@
+.git
+.gradle
+build
+outputs
+work
+*.iml
+*.log
