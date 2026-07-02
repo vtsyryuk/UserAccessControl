@@ -5,7 +5,7 @@ public abstract class IdentityField {
     private final String name;
     private final String value;
 
-    public IdentityField(String name, String value) {
+    protected IdentityField(String name, String value) {
         this.name = name;
         this.value = value;
     }

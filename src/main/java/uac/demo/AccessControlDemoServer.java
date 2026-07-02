@@ -226,12 +226,12 @@ public final class AccessControlDemoServer {
 
     private static final class DemoAccessRepository implements UserAccessControl {
         private final Map<String, Set<ResourcePermission>> permissions = Map.of(
-                "alice", Set.of(permission(new WildcardField("key"), UserAccessLevel.Write)),
-                "bob", Set.of(permission(new WildcardField("key"), UserAccessLevel.Read)),
+                "alice", Set.of(permission(new WildcardField("key"), UserAccessLevel.WRITE)),
+                "bob", Set.of(permission(new WildcardField("key"), UserAccessLevel.READ)),
                 "carol", Set.of(
-                        permission(new ValueField("key", "config/payment.yml"), UserAccessLevel.Write),
-                        permission(new WildcardField("key"), UserAccessLevel.Read)),
-                "dave", Set.of(permission(new WildcardField("key"), UserAccessLevel.None))
+                        permission(new ValueField("key", "config/payment.yml"), UserAccessLevel.WRITE),
+                        permission(new WildcardField("key"), UserAccessLevel.READ)),
+                "dave", Set.of(permission(new WildcardField("key"), UserAccessLevel.NONE))
         );
 
         private final List<String> resourceKeys = List.of(
@@ -278,7 +278,7 @@ public final class AccessControlDemoServer {
                 throw new IllegalArgumentException("ttlSeconds must be between 1 and 300");
             }
             UserAccessLevel accessLevel = accessChecker.getLevel(user, identity(key));
-            if (accessLevel != UserAccessLevel.Write) {
+            if (accessLevel != UserAccessLevel.WRITE) {
                 return LeaseResult.denied(user, key, accessLevel);
             }
 
@@ -336,11 +336,11 @@ public final class AccessControlDemoServer {
     private record LeaseResult(String status, String user, String key, UserAccessLevel accessLevel,
                                ResourceLease lease, String message) {
         static LeaseResult acquired(ResourceLease lease) {
-            return new LeaseResult("acquired", lease.user(), lease.key(), UserAccessLevel.Write, lease, null);
+            return new LeaseResult("acquired", lease.user(), lease.key(), UserAccessLevel.WRITE, lease, null);
         }
 
         static LeaseResult released(ResourceLease lease) {
-            return new LeaseResult("released", lease.user(), lease.key(), UserAccessLevel.Write, lease, null);
+            return new LeaseResult("released", lease.user(), lease.key(), UserAccessLevel.WRITE, lease, null);
         }
 
         static LeaseResult denied(String user, String key, UserAccessLevel accessLevel) {
@@ -348,12 +348,12 @@ public final class AccessControlDemoServer {
         }
 
         static LeaseResult locked(String user, String key, ResourceLease lease) {
-            return new LeaseResult("locked", user, key, UserAccessLevel.Write, lease, "resource already leased");
+            return new LeaseResult("locked", user, key, UserAccessLevel.WRITE, lease, "resource already leased");
         }
 
         static LeaseResult notFound(String leaseId, String key) {
             String target = leaseId != null ? leaseId : key;
-            return new LeaseResult("not_found", null, key, UserAccessLevel.None, null,
+            return new LeaseResult("not_found", null, key, UserAccessLevel.NONE, null,
                     "lease not found: " + target);
         }
 

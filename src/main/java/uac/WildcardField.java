@@ -10,6 +10,6 @@ public class WildcardField extends IdentityField {
 
     @Override
     public IdentityType getType() {
-        return IdentityType.Wildcard;
+        return IdentityType.WILDCARD;
     }
 }

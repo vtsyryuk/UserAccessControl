@@ -39,15 +39,15 @@ public final class UserAccessChecker {
     }
 
     private static UserAccessLevel getResultedLevel(Set<ResourcePermission> permissionSet) {
-        UserAccessLevel ual = UserAccessLevel.None;
+        UserAccessLevel ual = UserAccessLevel.NONE;
         for (ResourcePermission p : permissionSet) {
             UserAccessLevel level = p.getAccessLevel();
-            if (level == UserAccessLevel.Write) {
+            if (level == UserAccessLevel.WRITE) {
                 ual = level;
-            } else if (level == UserAccessLevel.Read && ual != UserAccessLevel.Write) {
+            } else if (level == UserAccessLevel.READ && ual != UserAccessLevel.WRITE) {
                 ual = level;
-            } else if (level == UserAccessLevel.None) {
-                return UserAccessLevel.None;
+            } else if (level == UserAccessLevel.NONE) {
+                return UserAccessLevel.NONE;
             }
         }
         return ual;
@@ -57,7 +57,7 @@ public final class UserAccessChecker {
 
         final Set<ResourcePermission> permissionSet = uac.getPermissionSet(userName);
         if (permissionSet == null || permissionSet.isEmpty()) {
-            return UserAccessLevel.None;
+            return UserAccessLevel.NONE;
         }
 
         final ResourceIdentity patternIdentity = permissionSet.iterator().next().getIdentity();
@@ -70,7 +70,7 @@ public final class UserAccessChecker {
 
         final int maxFreq = freqMap.values().stream().mapToInt(Integer::intValue).max().orElse(0);
         if (maxFreq == 0) {
-            return UserAccessLevel.None;
+            return UserAccessLevel.NONE;
         }
 
         final Set<ResourcePermission> bestMatch = new HashSet<>();
@@ -92,7 +92,7 @@ public final class UserAccessChecker {
             }
             if (lookupField.equals(f)) {
                 count += 2;
-            } else if (lookupField.getType() == IdentityType.Wildcard) {
+            } else if (lookupField.getType() == IdentityType.WILDCARD) {
                 count++;
             } else {
                 return 0;
