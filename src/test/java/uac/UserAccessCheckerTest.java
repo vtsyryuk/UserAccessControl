@@ -312,7 +312,7 @@ class UserAccessCheckerTest {
     }
 
     @Test
-    void testWildcardRules() {
+    void testWildcardRulesForExactAndAllWildcardMatches() {
         /*
          ----------------------------------
         | field1 | field2 | field3 | level |
@@ -459,6 +459,11 @@ class UserAccessCheckerTest {
                 .field(new WildcardField("field3"))
                 .build();
         assertAccess(UserAccessLevel.READ, f1wf2xf3w);
+    }
+
+    @Test
+    void testWildcardRulesForReadFallbacks() {
+        Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
 
         /*
          ----------------------------------
@@ -572,6 +577,11 @@ class UserAccessCheckerTest {
                 .field(new ValueField("field3", "value3"))
                 .build();
         assertAccess(UserAccessLevel.READ, f1wf2xf3v);
+    }
+
+    @Test
+    void testWildcardRulesForNoneAndField2Matches() {
+        Mockito.when(uac.getPermissionSet("user1")).thenReturn(uacRepository);
 
         /*
          ----------------------------------
