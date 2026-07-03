@@ -2,6 +2,8 @@ name: Cloud E2E
 
 on:
   deployment_status:
+  schedule:
+    - cron: '17 3 * * *'
   workflow_dispatch:
     inputs:
       base_url:

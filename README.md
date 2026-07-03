@@ -95,11 +95,11 @@ Render Free web services are suitable for demos and hobby projects, but they can
 
 ### Cloud UI E2E
 
-The `Cloud E2E` workflow runs Playwright browser tests against the deployed Render demo. It is triggered automatically by successful deployment status events for https://useraccesscontrol.onrender.com and can also be run manually from GitHub Actions with an optional `base_url` override.
+The `Cloud E2E` workflow runs Playwright browser tests against the deployed Render demo. It is triggered by successful deployment status events, runs daily to keep the cloud demo and status badge fresh, and can also be run manually from GitHub Actions with an optional `base_url` override.
 
 Run the same tests locally against any deployed demo:
 
 ```sh
-npm install
+npm ci --ignore-scripts
 PLAYWRIGHT_BASE_URL=https://useraccesscontrol.onrender.com npm run test:e2e
 ```
