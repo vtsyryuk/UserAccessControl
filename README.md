@@ -11,6 +11,12 @@
 
 Small Java access-control helper library for resolving the effective permission for a user/resource identity pair.
 
+## Project Links
+
+- Demo deployment: https://useraccesscontrol.onrender.com
+- Render service dashboard: https://dashboard.render.com/web/srv-d931suuh2hms73d4jsrg
+- SonarCloud summary: https://sonarcloud.io/summary/new_code?id=vtsyryuk_UserAccessControl&branch=master
+
 ## Build
 
 This project uses Gradle 9.6.1 and JDK 25 by default. Dependency versions live in `gradle/libs.versions.toml`; build knobs such as `javaVersion` and `coverageMinimum` live in `gradle.properties` and can be overridden with `-P`.
@@ -80,5 +86,7 @@ The demo users are:
 ### Free Cloud Demo
 
 The repository includes `Dockerfile` and `render.yaml` for deploying the demo as a Render Free web service. In Render, create a new Blueprint from this repository. The service starts the Java demo container, exposes `/health`, and keeps lease state in memory.
+
+The demo is auto-deployed on Render at https://useraccesscontrol.onrender.com. The Render service dashboard is available at https://dashboard.render.com/web/srv-d931suuh2hms73d4jsrg.
 
 Render Free web services are suitable for demos and hobby projects, but they can spin down after idle time and their local filesystem is ephemeral. Do not use the demo deployment as production storage or coordination infrastructure.
