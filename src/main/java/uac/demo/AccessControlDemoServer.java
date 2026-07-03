@@ -54,20 +54,22 @@ public final class AccessControlDemoServer {
         try {
             String path = exchange.getRequestURI().getPath();
             if ("GET".equals(exchange.getRequestMethod()) && "/".equals(path)) {
+                respondHtml(exchange, 200, ui());
+            } else if ("GET".equals(exchange.getRequestMethod()) && "/api".equals(path)) {
                 respond(exchange, 200, routes());
             } else if ("GET".equals(exchange.getRequestMethod()) && "/health".equals(path)) {
                 respond(exchange, 200, "{\"status\":\"ok\"}");
-            } else if ("GET".equals(exchange.getRequestMethod()) && "/resources".equals(path)) {
+            } else if ("GET".equals(exchange.getRequestMethod()) && ("/resources".equals(path) || "/api/resources".equals(path))) {
                 respond(exchange, 200, resources());
-            } else if ("GET".equals(exchange.getRequestMethod()) && "/leases".equals(path)) {
+            } else if ("GET".equals(exchange.getRequestMethod()) && ("/leases".equals(path) || "/api/leases".equals(path))) {
                 respond(exchange, 200, leaseStore.leasesJson());
-            } else if ("POST".equals(exchange.getRequestMethod()) && "/acquire".equals(path)) {
+            } else if ("POST".equals(exchange.getRequestMethod()) && ("/acquire".equals(path) || "/api/acquire".equals(path))) {
                 respond(exchange, 200, acquire(exchange.getRequestURI()));
-            } else if ("POST".equals(exchange.getRequestMethod()) && "/release".equals(path)) {
+            } else if ("POST".equals(exchange.getRequestMethod()) && ("/release".equals(path) || "/api/release".equals(path))) {
                 respond(exchange, 200, release(exchange.getRequestURI()));
-            } else if ("POST".equals(exchange.getRequestMethod()) && "/command".equals(path)) {
+            } else if ("POST".equals(exchange.getRequestMethod()) && ("/command".equals(path) || "/api/command".equals(path))) {
                 respond(exchange, 200, command(exchange.getRequestURI()));
-            } else if ("POST".equals(exchange.getRequestMethod()) && "/simulate".equals(path)) {
+            } else if ("POST".equals(exchange.getRequestMethod()) && ("/simulate".equals(path) || "/api/simulate".equals(path))) {
                 respond(exchange, 200, simulate(exchange.getRequestURI()));
             } else {
                 respond(exchange, 404, "{\"error\":\"not_found\"}");
@@ -166,6 +168,299 @@ public final class AccessControlDemoServer {
                 """;
     }
 
+    private static String ui() {
+        return """
+                <!doctype html>
+                <html lang="en">
+                  <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>UserAccessControl demo</title>
+                    <style>
+                      :root {
+                        color-scheme: light;
+                        font-family: Arial, Helvetica, sans-serif;
+                        background: #f6f7f9;
+                        color: #1b1f24;
+                      }
+
+                      body {
+                        margin: 0;
+                      }
+
+                      main {
+                        max-width: 1040px;
+                        margin: 0 auto;
+                        padding: 32px 20px;
+                      }
+
+                      header {
+                        margin-bottom: 28px;
+                      }
+
+                      h1 {
+                        margin: 0 0 8px;
+                        font-size: 32px;
+                        letter-spacing: 0;
+                      }
+
+                      p {
+                        margin: 0;
+                        color: #4d5761;
+                        line-height: 1.5;
+                      }
+
+                      .controls {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                        gap: 16px;
+                        margin-bottom: 20px;
+                      }
+
+                      label {
+                        display: grid;
+                        gap: 6px;
+                        font-weight: 700;
+                        font-size: 14px;
+                      }
+
+                      select,
+                      input,
+                      button {
+                        min-height: 42px;
+                        border: 1px solid #c7cdd4;
+                        border-radius: 6px;
+                        padding: 8px 10px;
+                        font: inherit;
+                        background: #ffffff;
+                      }
+
+                      button {
+                        border-color: #155eef;
+                        background: #155eef;
+                        color: #ffffff;
+                        font-weight: 700;
+                        cursor: pointer;
+                      }
+
+                      button.secondary {
+                        border-color: #59636e;
+                        background: #ffffff;
+                        color: #24292f;
+                      }
+
+                      button:disabled {
+                        cursor: wait;
+                        opacity: 0.68;
+                      }
+
+                      .actions {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                        margin-bottom: 24px;
+                      }
+
+                      .status {
+                        min-height: 26px;
+                        margin-bottom: 18px;
+                        font-weight: 700;
+                      }
+
+                      .status[data-state="acquired"],
+                      .status[data-state="released"] {
+                        color: #116329;
+                      }
+
+                      .status[data-state="denied"],
+                      .status[data-state="locked"],
+                      .status[data-state="not_found"] {
+                        color: #9a3412;
+                      }
+
+                      .grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                        gap: 18px;
+                      }
+
+                      section {
+                        min-width: 0;
+                      }
+
+                      h2 {
+                        font-size: 18px;
+                        margin: 0 0 10px;
+                      }
+
+                      ul {
+                        margin: 0;
+                        padding-left: 18px;
+                        line-height: 1.7;
+                      }
+
+                      pre {
+                        min-height: 220px;
+                        overflow: auto;
+                        margin: 0;
+                        padding: 14px;
+                        border: 1px solid #d0d7de;
+                        border-radius: 6px;
+                        background: #ffffff;
+                        font-size: 13px;
+                        line-height: 1.45;
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <main>
+                      <header>
+                        <h1>UserAccessControl demo</h1>
+                        <p>Acquire keyed fake repository resources, simulate concurrent access, and release leases by timeout or command.</p>
+                      </header>
+
+                      <div class="controls" aria-label="Access controls">
+                        <label>
+                          User
+                          <select id="user">
+                            <option value="alice">alice - writer</option>
+                            <option value="carol">carol - payment writer</option>
+                            <option value="bob">bob - reader</option>
+                            <option value="dave">dave - no access</option>
+                          </select>
+                        </label>
+                        <label>
+                          Resource
+                          <select id="resource"></select>
+                        </label>
+                        <label>
+                          Lease TTL seconds
+                          <input id="ttl" type="number" min="1" max="300" value="20">
+                        </label>
+                      </div>
+
+                      <div class="actions">
+                        <button id="acquire">Acquire</button>
+                        <button id="release" class="secondary">Release by command</button>
+                        <button id="simulate" class="secondary">Simulate concurrent access</button>
+                        <button id="refresh" class="secondary">Refresh leases</button>
+                      </div>
+
+                      <div id="status" class="status" role="status" aria-live="polite">Loading resources...</div>
+
+                      <div class="grid">
+                        <section>
+                          <h2>Resources</h2>
+                          <ul id="resources"></ul>
+                        </section>
+                        <section>
+                          <h2>Last response</h2>
+                          <pre id="output">{}</pre>
+                        </section>
+                      </div>
+                    </main>
+
+                    <script>
+                      const state = { leaseId: null };
+                      const user = document.querySelector("#user");
+                      const resource = document.querySelector("#resource");
+                      const ttl = document.querySelector("#ttl");
+                      const status = document.querySelector("#status");
+                      const output = document.querySelector("#output");
+                      const resources = document.querySelector("#resources");
+                      const buttons = Array.from(document.querySelectorAll("button"));
+
+                      function setBusy(isBusy) {
+                        buttons.forEach((button) => {
+                          button.disabled = isBusy;
+                        });
+                      }
+
+                      function show(message, stateName) {
+                        status.textContent = message;
+                        status.dataset.state = stateName || "";
+                      }
+
+                      function render(data) {
+                        output.textContent = JSON.stringify(data, null, 2);
+                        if (data.lease && data.lease.leaseId) {
+                          state.leaseId = data.lease.leaseId;
+                        }
+                        if (data.status) {
+                          show(`${data.status}: ${data.user || "resource"} ${data.key || ""}`.trim(), data.status);
+                        }
+                      }
+
+                      async function call(path, options = {}) {
+                        setBusy(true);
+                        try {
+                          const response = await fetch(path, options);
+                          const data = await response.json();
+                          render(data);
+                          return data;
+                        } finally {
+                          setBusy(false);
+                        }
+                      }
+
+                      async function loadResources() {
+                        const data = await call("/api/resources");
+                        resource.innerHTML = "";
+                        resources.innerHTML = "";
+                        data.resources.forEach((item) => {
+                          const option = document.createElement("option");
+                          option.value = item.key;
+                          option.textContent = item.key;
+                          resource.append(option);
+
+                          const row = document.createElement("li");
+                          row.textContent = item.key;
+                          resources.append(row);
+                        });
+                        show(`Loaded ${data.resources.length} resources`, "loaded");
+                      }
+
+                      document.querySelector("#acquire").addEventListener("click", () => {
+                        const params = new URLSearchParams({
+                          user: user.value,
+                          key: resource.value,
+                          ttlSeconds: ttl.value
+                        });
+                        call(`/api/acquire?${params}`, { method: "POST" });
+                      });
+
+                      document.querySelector("#release").addEventListener("click", () => {
+                        const params = new URLSearchParams({ command: "release" });
+                        if (state.leaseId) {
+                          params.set("leaseId", state.leaseId);
+                        } else {
+                          params.set("key", resource.value);
+                        }
+                        call(`/api/command?${params}`, { method: "POST" });
+                      });
+
+                      document.querySelector("#simulate").addEventListener("click", () => {
+                        const params = new URLSearchParams({
+                          key: resource.value,
+                          ttlSeconds: "5",
+                          users: "alice,carol,bob,dave"
+                        });
+                        call(`/api/simulate?${params}`, { method: "POST" });
+                      });
+
+                      document.querySelector("#refresh").addEventListener("click", () => {
+                        call("/api/leases");
+                      });
+
+                      loadResources().catch((error) => {
+                        show(error.message, "error");
+                      });
+                    </script>
+                  </body>
+                </html>
+                """;
+    }
+
     private static ResourceIdentity identity(String key) {
         return new ResourceIdentity.Builder()
                 .field(new ValueField("repository", REPOSITORY))
@@ -206,9 +501,17 @@ public final class AccessControlDemoServer {
     }
 
     private static void respond(HttpExchange exchange, int status, String body) {
+        respond(exchange, status, body, "application/json; charset=utf-8");
+    }
+
+    private static void respondHtml(HttpExchange exchange, int status, String body) {
+        respond(exchange, status, body, "text/html; charset=utf-8");
+    }
+
+    private static void respond(HttpExchange exchange, int status, String body, String contentType) {
         try {
             byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+            exchange.getResponseHeaders().set("Content-Type", contentType);
             exchange.sendResponseHeaders(status, bytes.length);
             exchange.getResponseBody().write(bytes);
         } catch (IOException ex) {

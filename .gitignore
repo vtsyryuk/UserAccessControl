@@ -49,6 +49,11 @@ target/
 bin/
 *.class
 
+# Node and browser E2E tests
+node_modules/
+playwright-report/
+test-results/
+
 # IDEs
 .idea/
 .settings/org.eclipse.buildship.core.prefs
