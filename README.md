@@ -17,9 +17,9 @@ Small Java access-control helper library for resolving the effective permission 
 
 | Build | Line Coverage | Branch Coverage | Instruction Coverage | Workflow Run |
 | --- | ---: | ---: | ---: | --- |
-| ✅ Passing | 100.00% | 94.32% | 99.27% | [#52](https://github.com/vtsyryuk/UserAccessControl/actions/runs/28639010525) |
+| ✅ Passing | 100.00% | 94.32% | 99.27% | [#53](https://github.com/vtsyryuk/UserAccessControl/actions/runs/28639062151) |
 
-Last updated from `master` at 2026-07-03 04:45 UTC for commit `4ee0144`.
+Last updated from `master` at 2026-07-03 04:47 UTC for commit `7f43b8f`.
 <!-- ci-status:end -->
 
 ## Project Links
