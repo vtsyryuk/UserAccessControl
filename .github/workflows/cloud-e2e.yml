@@ -30,10 +30,10 @@ jobs:
           node-version: '24'
 
       - name: Install test dependencies
-        run: npm install --no-audit --fund=false
+        run: npm ci --ignore-scripts --no-audit --fund=false
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: ./node_modules/.bin/playwright install --with-deps chromium
 
       - name: Run cloud UI tests
         run: npm run test:e2e
