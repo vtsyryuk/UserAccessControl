@@ -1,0 +1,64 @@
+name: Postman API Tests
+
+on:
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postman-tests:
+    name: Run Postman Collection
+    runs-on: ubuntu-latest
+    env:
+      POSTMAN_COLLECTION: postman/UserAccessControlAPI.postman_collection.json
+      POSTMAN_BASE_URL: https://useraccesscontrol.onrender.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Check Postman collection
+        id: collection
+        run: |
+          if [ -f "${POSTMAN_COLLECTION}" ]; then
+            echo "exists=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "exists=false" >> "${GITHUB_OUTPUT}"
+            echo "::notice title=Postman collection missing::Export ${POSTMAN_COLLECTION} with create-postman-pr.mjs to enable API tests."
+          fi
+
+      - name: Install Postman CLI
+        if: steps.collection.outputs.exists == 'true'
+        run: |
+          curl --fail --show-error --location --retry 3 \
+            --output /tmp/install-postman-cli.sh \
+            "https://dl-cli.pstmn.io/install/linux64.sh"
+          sh /tmp/install-postman-cli.sh
+
+      - name: Run User Access Control API collection
+        if: steps.collection.outputs.exists == 'true'
+        run: |
+          postman collection run "${POSTMAN_COLLECTION}" \
+            --env-var "baseUrl=${POSTMAN_BASE_URL}" \
+            --reporters cli,json,junit \
+            --reporter-json-export postman-results.json \
+            --reporter-junit-export postman-results.xml
+
+      - name: Upload Postman JSON results
+        if: always() && steps.collection.outputs.exists == 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: postman-json-results
+          path: postman-results.json
+          if-no-files-found: warn
+
+      - name: Upload Postman JUnit results
+        if: always() && steps.collection.outputs.exists == 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: postman-junit-results
+          path: postman-results.xml
+          if-no-files-found: warn
