@@ -82,9 +82,108 @@ jobs:
           name: user-access-control-jars
           path: |
             build/libs/*.jar
+            build/reports/jacoco/test/jacocoTestReport.xml
             build/reports/jacoco/test/html/**
           if-no-files-found: warn
 
       - name: Fail if Gradle build failed
         if: steps.gradle-build.outcome != 'success'
         run: exit 1
+
+  readme-status:
+    name: Update README Status
+    if: always() && github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'main')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: user-access-control-jars
+          path: .ci-artifacts
+
+      - name: Update README status block
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          readme_path = Path("README.md")
+          readme = readme_path.read_text()
+          start = "<!-- ci-status:start -->"
+          end = "<!-- ci-status:end -->"
+          status = "✅ Passing" if os.environ["BUILD_RESULT"] == "success" else "❌ Failing"
+          coverage = {"LINE": "N/A", "BRANCH": "N/A", "INSTRUCTION": "N/A"}
+          report = next(Path(".ci-artifacts").rglob("jacocoTestReport.xml"), None)
+
+          if report is not None:
+              root = ET.parse(report).getroot()
+              for counter in root.findall("counter"):
+                  metric = counter.attrib["type"]
+                  if metric in coverage:
+                      missed = int(counter.attrib["missed"])
+                      covered = int(counter.attrib["covered"])
+                      total = missed + covered
+                      coverage[metric] = f"{(100.0 * covered / total if total else 100.0):.2f}%"
+
+          run_url = (
+              f"{os.environ['GITHUB_SERVER_URL']}/"
+              f"{os.environ['GITHUB_REPOSITORY']}/actions/runs/"
+              f"{os.environ['GITHUB_RUN_ID']}"
+          )
+          timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+          new_block = "\n".join([
+              start,
+              "## CI Status",
+              "",
+              "| Build | Line Coverage | Branch Coverage | Instruction Coverage | Workflow Run |",
+              "| --- | ---: | ---: | ---: | --- |",
+              f"| {status} | {coverage['LINE']} | {coverage['BRANCH']} | {coverage['INSTRUCTION']} | [#{os.environ['GITHUB_RUN_NUMBER']}]({run_url}) |",
+              "",
+              f"Last updated from `{os.environ['GITHUB_REF_NAME']}` at {timestamp} for commit `{os.environ['GITHUB_SHA'][:7]}`.",
+              end,
+          ])
+
+          if start in readme and end in readme:
+              before = readme.split(start, 1)[0]
+              after = readme.split(end, 1)[1]
+              readme = before + new_block + after
+          else:
+              anchor = "Small Java access-control helper library for resolving the effective permission for a user/resource identity pair.\n"
+              readme = readme.replace(anchor, anchor + "\n" + new_block + "\n", 1)
+
+          readme_path.write_text(readme)
+          PY
+
+      - name: Publish README status update
+        run: |
+          git fetch origin "${GITHUB_REF_NAME}"
+          remote_sha="$(git rev-parse "origin/${GITHUB_REF_NAME}")"
+          if [ "${remote_sha}" != "${GITHUB_SHA}" ]; then
+            echo "A newer commit is already on ${GITHUB_REF_NAME}; its workflow will update the status."
+            exit 0
+          fi
+          if git diff --quiet README.md; then
+            echo "README status is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README CI status [skip ci]"
+          if ! git push origin "HEAD:${GITHUB_REF_NAME}"; then
+            echo "::warning::README status update lost a push race; a newer workflow will refresh it."
+          fi

@@ -12,6 +12,16 @@
 
 Small Java access-control helper library for resolving the effective permission for a user/resource identity pair.
 
+<!-- ci-status:start -->
+## CI Status
+
+| Build | Line Coverage | Branch Coverage | Instruction Coverage | Workflow Run |
+| --- | ---: | ---: | ---: | --- |
+| ✅ Passing | 100.00% | 94.32% | 99.27% | [#71](https://github.com/vtsyryuk/UserAccessControl/actions/runs/31557795786) |
+
+Last updated from `master` at 2026-08-12 02:44 UTC for commit `b242c84`.
+<!-- ci-status:end -->
+
 ## Project Links
 
 - Live demo: https://useraccesscontrol.onrender.com
