@@ -2,7 +2,7 @@
 jacoco = "0.8.14"
 junit = "6.1.3"
 mockito = "5.23.0"
-sonarqube = "7.4.0.8496"
+sonarqube = "7.5.0.8588"
 
 [libraries]
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
