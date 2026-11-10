@@ -1,5 +1,7 @@
 package uac;
 
+import java.util.Objects;
+
 public class ResourcePermission {
     private final ResourceIdentity identity;
     private final UserAccessLevel accessLevel;
@@ -16,7 +18,7 @@ public class ResourcePermission {
 
         ResourcePermission that = (ResourcePermission) o;
         return accessLevel == that.accessLevel &&
-                (identity != null ? identity.equals(that.identity) : that.identity == null);
+                Objects.equals(identity, that.identity);
     }
 
     @Override
