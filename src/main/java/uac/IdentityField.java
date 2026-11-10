@@ -1,5 +1,7 @@
 package uac;
 
+import java.util.Objects;
+
 public abstract class IdentityField {
 
     private final String name;
@@ -25,8 +27,8 @@ public abstract class IdentityField {
 
         IdentityField that = (IdentityField) o;
 
-        return (name != null ? name.equals(that.name) : that.name == null) &&
-                (value != null ? value.equals(that.value) : that.value == null);
+        return Objects.equals(name, that.name) &&
+                Objects.equals(value, that.value);
     }
 
     @Override
